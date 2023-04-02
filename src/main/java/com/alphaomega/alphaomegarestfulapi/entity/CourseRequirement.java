@@ -1,13 +1,11 @@
 package com.alphaomega.alphaomegarestfulapi.entity;
 
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
-import org.hibernate.validator.constraints.URL;
 
 import java.time.LocalDateTime;
 
@@ -16,24 +14,17 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "users")
-public class SocialMedia {
+@Table(name = "course_requirement")
+public class CourseRequirement {
 
     @Id
     private String id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "users_id")
-    private  User user;
+    @ManyToOne
+    @JoinColumn(name = "course_id")
+    private Course course;
 
-    @URL
-    private String webUrl;
-
-    @URL
-    private String linkedinUrl;
-
-    @URL
-    private String youtubeUrl;
+    private String name;
 
     private LocalDateTime createdAt;
 

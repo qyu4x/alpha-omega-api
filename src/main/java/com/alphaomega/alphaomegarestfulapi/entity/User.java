@@ -12,6 +12,7 @@ import org.hibernate.validator.constraints.URL;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -40,9 +41,6 @@ public class User {
     @Size(max = 50)
     private String password;
 
-    @Column(columnDefinition = "TEXT")
-    private String caption;
-
     @URL
     private String imageUrl;
 
@@ -69,7 +67,10 @@ public class User {
     private Instructor instructor;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private SocialMedia socialMedia;
+    private UserSocialMedia userSocialMedia;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<Comment> comments;
 
 
 }

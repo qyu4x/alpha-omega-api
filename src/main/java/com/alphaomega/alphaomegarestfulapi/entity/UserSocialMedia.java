@@ -5,17 +5,17 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.validator.constraints.URL;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "instructor")
-public class Instructor {
+@Table(name = "user_social_media")
+public class UserSocialMedia {
 
     @Id
     private String id;
@@ -24,15 +24,14 @@ public class Instructor {
     @JoinColumn(name = "users_id")
     private User user;
 
-    @OneToMany(mappedBy = "instructor", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Course> courses;
+    @URL
+    private String webUrl;
 
-    @OneToMany(mappedBy = "instructor", fetch = FetchType.LAZY, orphanRemoval = false)
-    private List<InstructorArticle> instructorArticles;
+    @URL
+    private String linkedinUrl;
 
-    private Long totalParticipants;
-
-    private Long totalReviews;
+    @URL
+    private String youtubeUrl;
 
     private LocalDateTime createdAt;
 
