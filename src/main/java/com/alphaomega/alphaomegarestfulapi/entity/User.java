@@ -68,6 +68,9 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = false)
     private Instructor instructor;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private SocialMedia socialMedia;
+
 
 }
 
