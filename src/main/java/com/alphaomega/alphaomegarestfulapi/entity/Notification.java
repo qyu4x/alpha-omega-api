@@ -13,30 +13,29 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "comment")
-public class Comment {
+@Table(name = "notification")
+public class Notification {
 
     @Id
     private String id;
 
     @ManyToOne
+    @JoinColumn(name = "notification_category_id")
+    private NotificationCategory notificationCategory;
+
+    @ManyToOne
     @JoinColumn(name = "users_id")
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "course_id")
-    private Course course;
-
-    private Integer totalStars;
+    private String title;
 
     @Column(columnDefinition = "TEXT")
-    private String reviews;
+    private String message;
 
-    private Long countLikes;
-
-    private Long countDislikes;
+    private Boolean isRead = Boolean.FALSE;
 
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
 }

@@ -44,6 +44,15 @@ public class Course {
     @OneToMany(mappedBy = "course", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments;
 
+    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<WishList> wishLists;
+
+    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ShoppingCart> shoppingCarts;
+
+    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
+    private List<OrderDetail> orderDetails;
+
     @Column(columnDefinition = "TEXT")
     private String description;
 

@@ -1,42 +1,34 @@
 package com.alphaomega.alphaomegarestfulapi.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "comment")
-public class Comment {
+@Table(name = "notification_category")
+public class NotificationCategory {
 
     @Id
     private String id;
 
-    @ManyToOne
-    @JoinColumn(name = "users_id")
-    private User user;
-
-    @ManyToOne
-    @JoinColumn(name = "course_id")
-    private Course course;
-
-    private Integer totalStars;
-
-    @Column(columnDefinition = "TEXT")
-    private String reviews;
-
-    private Long countLikes;
-
-    private Long countDislikes;
+    @Size(max = 20)
+    private String name;
 
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "notificationCategory", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notification> notifications;
+
 }

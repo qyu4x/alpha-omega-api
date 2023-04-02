@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -13,30 +14,24 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "comment")
-public class Comment {
+@Table(name = "order_detail")
+public class OrderDetail {
 
     @Id
     private String id;
 
     @ManyToOne
-    @JoinColumn(name = "users_id")
-    private User user;
+    @JoinColumn(name = "order_id")
+    private Order order;
 
     @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;
 
-    private Integer totalStars;
-
-    @Column(columnDefinition = "TEXT")
-    private String reviews;
-
-    private Long countLikes;
-
-    private Long countDislikes;
+    private BigDecimal coursePrice;
 
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
 }

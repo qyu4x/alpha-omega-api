@@ -13,28 +13,20 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "comment")
-public class Comment {
+@Table(name = "payment")
+public class Payment {
 
     @Id
     private String id;
 
-    @ManyToOne
-    @JoinColumn(name = "users_id")
-    private User user;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    private Order order;
 
-    @ManyToOne
-    @JoinColumn(name = "course_id")
-    private Course course;
+    @OneToOne(mappedBy = "payment", fetch = FetchType.LAZY)
+    private PaymentMethod paymentMethod;
 
-    private Integer totalStars;
-
-    @Column(columnDefinition = "TEXT")
-    private String reviews;
-
-    private Long countLikes;
-
-    private Long countDislikes;
+    private LocalDateTime expiredPayment;
 
     private LocalDateTime createdAt;
 
