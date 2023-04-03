@@ -2,10 +2,7 @@ package com.alphaomega.alphaomegarestfulapi.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import org.hibernate.validator.constraints.URL;
@@ -20,6 +17,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Builder
 @Table(name = "users",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = "email"),
@@ -38,7 +36,6 @@ public class User {
     @Size(max = 50)
     private String email;
 
-    @Size(max = 50)
     private String password;
 
     @URL

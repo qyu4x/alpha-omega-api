@@ -1,5 +1,5 @@
 package com.alphaomega.alphaomegarestfulapi.entity;
 
 public enum ERole {
-    ADMIN, USER, INSTRUCTOR
+    ROLE_ADMIN, ROLE_USER, ROLE_INSTRUCTOR
 }

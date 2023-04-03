@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class CentralizedException {
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ExceptionResponse<List<String>>> handleValidationErrors(MethodArgumentNotValidException exception) {
         List<String> errors = exception.getBindingResult().getFieldErrors()
                 .stream().map(FieldError::getDefaultMessage).collect(Collectors.toList());
