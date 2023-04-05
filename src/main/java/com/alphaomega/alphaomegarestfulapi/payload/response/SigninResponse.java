@@ -1,9 +1,6 @@
 package com.alphaomega.alphaomegarestfulapi.payload.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,6 +9,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class SigninResponse {
 
     private String id;
@@ -21,6 +19,8 @@ public class SigninResponse {
     private String email;
 
     private List<RoleResponse> roles;
+
+    private JwtResponse jwtResponse;
 
     private String imageUrl;
 

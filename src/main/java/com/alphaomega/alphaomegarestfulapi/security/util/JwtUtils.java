@@ -1,6 +1,7 @@
 package com.alphaomega.alphaomegarestfulapi.security.util;
 
 import com.alphaomega.alphaomegarestfulapi.payload.request.SignupRequest;
+import com.alphaomega.alphaomegarestfulapi.security.service.UserDetailsImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.Getter;
@@ -42,13 +43,24 @@ public class JwtUtils {
                 .compact();
     }
 
+    public String generateJwtToken(Authentication authentication) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        return Jwts.builder()
+                .setSubject(userDetails.getEmail())
+                .setIssuedAt(Date.from(LocalDateTime.now().toInstant(ZoneOffset.ofHours(+7))))
+                .setExpiration(Date.from(LocalDateTime.now().toInstant(ZoneOffset.ofHours(+7)).plusSeconds(TimeUnit.DAYS.toSeconds(this.expirationDay))))
+                .signWith(SignatureAlgorithm.HS512, this.secretKey)
+                .compact();
+    }
+
+
     public String getEmailFromJwtToken(String token) {
         return Jwts.parser().setSigningKey(this.secretKey).parseClaimsJws(token).getBody().getSubject();
     }
 
     public Boolean validateJwtToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(this.secretKey).build().parseClaimsJws(token);
+            Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
             return true;
         } catch (SignatureException exception) {
             log.error("Invalid JWT Token signature: {}", exception.getMessage());
