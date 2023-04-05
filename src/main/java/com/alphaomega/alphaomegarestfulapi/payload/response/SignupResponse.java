@@ -31,6 +31,10 @@ public class SignupResponse {
 
     private Boolean deleted;
 
+    private Boolean isVerify;
+
+    private LocalDateTime expirationTime;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

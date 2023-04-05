@@ -69,4 +69,16 @@ public class CentralizedException {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exceptionResponse);
     }
 
+    @ExceptionHandler(InvalidOtpException.class)
+    public ResponseEntity<ExceptionResponse<String>> handleOtpInvalid(InvalidOtpException exception) {
+        ExceptionResponse<String> exceptionResponse = new ExceptionResponse<>(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                exception.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionResponse);
+    }
+
+
+
 }

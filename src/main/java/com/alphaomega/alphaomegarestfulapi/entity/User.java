@@ -49,6 +49,13 @@ public class User {
 
     private Boolean deleted = false;
 
+    private Integer otp;
+
+    @Column(nullable = false)
+    private Boolean isVerify;
+
+    private LocalDateTime expirationTime;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

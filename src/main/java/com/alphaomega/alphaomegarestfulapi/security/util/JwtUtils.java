@@ -1,5 +1,6 @@
 package com.alphaomega.alphaomegarestfulapi.security.util;
 
+import com.alphaomega.alphaomegarestfulapi.entity.User;
 import com.alphaomega.alphaomegarestfulapi.payload.request.SignupRequest;
 import com.alphaomega.alphaomegarestfulapi.security.service.UserDetailsImpl;
 import io.jsonwebtoken.*;
@@ -34,9 +35,9 @@ public class JwtUtils {
     private String tokenType;
 
 
-    public String generateRegisterJwtToken(SignupRequest signupRequest) {
+    public String generateRegisterJwtToken(User user) {
         return Jwts.builder()
-                .setSubject(signupRequest.getEmail())
+                .setSubject(user.getEmail())
                 .setIssuedAt(Date.from(LocalDateTime.now().toInstant(ZoneOffset.ofHours(+7))))
                 .setExpiration(Date.from(LocalDateTime.now().toInstant(ZoneOffset.ofHours(+7)).plusSeconds(TimeUnit.DAYS.toSeconds(this.expirationDay))))
                 .signWith(SignatureAlgorithm.HS512, this.secretKey)
