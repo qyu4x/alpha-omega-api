@@ -222,7 +222,7 @@ public class UserServiceImpl implements UserService {
         user.setExpirationTime(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime().plusMinutes(2));
         userRepository.save(user);
 
-        otpUtils.sendEmail(user.getEmail(), user.getFullName(), "Code Verification", user.getOtp());
+        otpUtils.sendEmail(user.getEmail(), user.getFullName(), "Verification Code", user.getOtp());
 
         Set<RoleResponse> userRoleResponses = new HashSet<>();
         user.getRoles().stream()
