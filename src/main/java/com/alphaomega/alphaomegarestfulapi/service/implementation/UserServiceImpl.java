@@ -4,25 +4,22 @@ package com.alphaomega.alphaomegarestfulapi.service.implementation;
 import com.alphaomega.alphaomegarestfulapi.entity.ERole;
 import com.alphaomega.alphaomegarestfulapi.entity.Role;
 import com.alphaomega.alphaomegarestfulapi.entity.User;
+import com.alphaomega.alphaomegarestfulapi.entity.UserSocialMedia;
 import com.alphaomega.alphaomegarestfulapi.exception.DataAlreadyExistsException;
 import com.alphaomega.alphaomegarestfulapi.exception.DataNotFoundException;
 import com.alphaomega.alphaomegarestfulapi.exception.InvalidOtpException;
-import com.alphaomega.alphaomegarestfulapi.payload.request.OtpRefreshCodeRequest;
-import com.alphaomega.alphaomegarestfulapi.payload.request.OtpVerificationRequest;
-import com.alphaomega.alphaomegarestfulapi.payload.request.SigninRequest;
-import com.alphaomega.alphaomegarestfulapi.payload.request.SignupRequest;
-import com.alphaomega.alphaomegarestfulapi.payload.response.JwtResponse;
-import com.alphaomega.alphaomegarestfulapi.payload.response.RoleResponse;
-import com.alphaomega.alphaomegarestfulapi.payload.response.SigninResponse;
-import com.alphaomega.alphaomegarestfulapi.payload.response.SignupResponse;
+import com.alphaomega.alphaomegarestfulapi.payload.request.*;
+import com.alphaomega.alphaomegarestfulapi.payload.response.*;
 import com.alphaomega.alphaomegarestfulapi.repository.RoleRepository;
 import com.alphaomega.alphaomegarestfulapi.repository.UserRepository;
+import com.alphaomega.alphaomegarestfulapi.repository.UserSocialMediaRepository;
 import com.alphaomega.alphaomegarestfulapi.security.configuration.PasswordEncoderConfiguration;
 import com.alphaomega.alphaomegarestfulapi.security.service.UserDetailsImpl;
 import com.alphaomega.alphaomegarestfulapi.security.util.JwtUtils;
 import com.alphaomega.alphaomegarestfulapi.security.util.OtpUtils;
 import com.alphaomega.alphaomegarestfulapi.service.UserService;
 import jakarta.mail.MessagingException;
+import jakarta.transaction.TransactionScoped;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +32,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -48,6 +46,8 @@ public class UserServiceImpl implements UserService {
 
     private UserRepository userRepository;
 
+    private UserSocialMediaRepository userSocialMediaRepository;
+
     private RoleRepository roleRepository;
 
     private PasswordEncoderConfiguration passwordEncoderConfiguration;
@@ -58,9 +58,9 @@ public class UserServiceImpl implements UserService {
 
     private OtpUtils otpUtils;
 
-    @Autowired
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoderConfiguration passwordEncoderConfiguration, JwtUtils jwtUtils, AuthenticationManager authenticationManager, OtpUtils otpUtils) {
+    public UserServiceImpl(UserRepository userRepository, UserSocialMediaRepository userSocialMediaRepository, RoleRepository roleRepository, PasswordEncoderConfiguration passwordEncoderConfiguration, JwtUtils jwtUtils, AuthenticationManager authenticationManager, OtpUtils otpUtils) {
         this.userRepository = userRepository;
+        this.userSocialMediaRepository = userSocialMediaRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoderConfiguration = passwordEncoderConfiguration;
         this.jwtUtils = jwtUtils;
@@ -250,5 +250,73 @@ public class UserServiceImpl implements UserService {
                 .createdAt(user.getCreatedAt())
                 .build();
 
+    }
+
+    @Transactional
+    @Override
+    public UserResponse update(UpdateUserRequest updateUserRequest, String userId) {
+        log.info("Perform the update process for user");
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+        UserSocialMedia userSocialMedia = userSocialMediaRepository.findByUserId(userId);
+        if (userSocialMedia == null) {
+            log.info("this");
+            userSocialMedia = UserSocialMedia.builder()
+                    .id("sc-".concat(UUID.randomUUID().toString()))
+                    .user(user)
+                    .webUrl(updateUserRequest.getWebUrl())
+                    .facebook(updateUserRequest.getFacebookUrl())
+                    .linkedinUrl(updateUserRequest.getLinkedinUrl())
+                    .youtubeUrl(updateUserRequest.getYoutubeUrl())
+                    .createdAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime())
+                    .updatedAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime())
+                    .build();
+        } else {
+            userSocialMedia.setWebUrl(updateUserRequest.getWebUrl());
+            userSocialMedia.setFacebook(updateUserRequest.getFacebookUrl());
+            userSocialMedia.setLinkedinUrl(updateUserRequest.getLinkedinUrl());
+            userSocialMedia.setYoutubeUrl(updateUserRequest.getYoutubeUrl());
+            userSocialMedia.setUpdatedAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime());
+        }
+
+        user.setFullName(updateUserRequest.getFullName());
+        user.setCaption(updateUserRequest.getCaption());
+        user.setBiography(updateUserRequest.getBiography());
+        user.setUserSocialMedia(userSocialMedia);
+        user.setUpdatedAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime());
+
+        userRepository.save(user);
+        log.info("Successfully update user information");
+
+        Set<RoleResponse> userRoleResponses = new HashSet<>();
+        user.getRoles().stream()
+                .forEach(role -> {
+                    RoleResponse roleResponse = RoleResponse.builder()
+                            .id(role.getId())
+                            .role(role.getName().name())
+                            .build();
+                    userRoleResponses.add(roleResponse);
+                });
+
+
+        return UserResponse.builder()
+                .id(user.getId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .roles(userRoleResponses)
+                .imageUrl(user.getImageUrl())
+                .instructorName(user.getInstructorName())
+                .caption(user.getCaption())
+                .biography(user.getBiography())
+                .deleted(user.getDeleted())
+                .isVerify(user.getIsVerify())
+                .webUrl(user.getUserSocialMedia().getWebUrl())
+                .facebookUrl(user.getUserSocialMedia().getFacebook())
+                .linkedinUrl(user.getUserSocialMedia().getLinkedinUrl())
+                .youtubeUrl(user.getUserSocialMedia().getYoutubeUrl())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
+                .build();
     }
 }

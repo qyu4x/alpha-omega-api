@@ -1,14 +1,12 @@
 package com.alphaomega.alphaomegarestfulapi.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.validator.constraints.URL;
 
 import java.time.LocalDateTime;
 
+@Builder
 @Getter
 @Setter
 @AllArgsConstructor
@@ -26,6 +24,9 @@ public class UserSocialMedia {
 
     @URL
     private String webUrl;
+
+    @URL
+    private String facebook;
 
     @URL
     private String linkedinUrl;

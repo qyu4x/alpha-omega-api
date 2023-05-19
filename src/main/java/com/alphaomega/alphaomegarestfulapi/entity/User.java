@@ -45,6 +45,9 @@ public class User {
     private String instructorName;
 
     @Column(columnDefinition = "TEXT")
+    private String caption;
+
+    @Column(columnDefinition = "TEXT")
     private String biography;
 
     private Boolean deleted = false;

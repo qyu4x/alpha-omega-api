@@ -1,11 +1,9 @@
 package com.alphaomega.alphaomegarestfulapi.service;
 
-import com.alphaomega.alphaomegarestfulapi.payload.request.OtpRefreshCodeRequest;
-import com.alphaomega.alphaomegarestfulapi.payload.request.OtpVerificationRequest;
-import com.alphaomega.alphaomegarestfulapi.payload.request.SigninRequest;
-import com.alphaomega.alphaomegarestfulapi.payload.request.SignupRequest;
+import com.alphaomega.alphaomegarestfulapi.payload.request.*;
 import com.alphaomega.alphaomegarestfulapi.payload.response.SigninResponse;
 import com.alphaomega.alphaomegarestfulapi.payload.response.SignupResponse;
+import com.alphaomega.alphaomegarestfulapi.payload.response.UserResponse;
 import jakarta.mail.MessagingException;
 
 public interface UserService {
@@ -15,4 +13,6 @@ public interface UserService {
     SignupResponse verifyOtp(OtpVerificationRequest otpVerificationRequest);
 
     SignupResponse refreshVerifyOtp(OtpRefreshCodeRequest otpRefreshCodeRequest) throws MessagingException;
+
+    UserResponse update(UpdateUserRequest updateUserRequest, String userId);
 }
