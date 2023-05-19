@@ -90,7 +90,7 @@ public class UserServiceImpl implements UserService {
                 .deleted(false)
                 .isVerify(false)
                 .otp(otpUtils.generateOtp())
-                .expirationTime(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime().plusMinutes(2))
+                .expirationTime(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime().plusMinutes(5))
                 .createdAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime())
                 .build();
 
@@ -120,6 +120,12 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public SigninResponse signin(SigninRequest signinRequest) {
+        User checkIsUserAvailable = userRepository.findByEmail(signinRequest.getEmail())
+                .orElseThrow(() -> new DataNotFoundException(String.format("User with email %s not found", signinRequest.getEmail())));
+        if(!checkIsUserAvailable.getIsVerify()) {
+            throw new InvalidOtpException("Please verify your account first");
+        }
+
         Authentication authentication = authenticate(signinRequest.getEmail(), signinRequest.getPassword());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -219,10 +225,10 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new DataNotFoundException(String.format("User with email %s not found", otpRefreshCodeRequest.getEmail())));
 
         user.setOtp(otpUtils.generateOtp());
-        user.setExpirationTime(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime().plusMinutes(2));
+        user.setExpirationTime(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime().plusMinutes(5));
         userRepository.save(user);
 
-        otpUtils.sendEmail(user.getEmail(), user.getFullName(), "Verification Code", user.getOtp());
+        otpUtils.sendEmail(user.getEmail(), user.getFullName(), "AO Verification Code", user.getOtp());
 
         Set<RoleResponse> userRoleResponses = new HashSet<>();
         user.getRoles().stream()
