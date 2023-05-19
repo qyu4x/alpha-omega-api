@@ -123,7 +123,7 @@ public class UserServiceImpl implements UserService {
         User checkIsUserAvailable = userRepository.findByEmail(signinRequest.getEmail())
                 .orElseThrow(() -> new DataNotFoundException(String.format("User with email %s not found", signinRequest.getEmail())));
         if(!checkIsUserAvailable.getIsVerify()) {
-            throw new InvalidOtpException("Please verify your account first");
+            throw new BadCredentialsException("Please verify your account first");
         }
 
         Authentication authentication = authenticate(signinRequest.getEmail(), signinRequest.getPassword());
