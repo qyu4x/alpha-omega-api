@@ -79,6 +79,26 @@ public class CentralizedException {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionResponse);
     }
 
+    @ExceptionHandler(FileUploadException.class)
+    public ResponseEntity<ExceptionResponse<String>> handleFileUploadErrors(FileUploadException exception) {
+        ExceptionResponse<String> exceptionResponse = new ExceptionResponse<>(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+                exception.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(exceptionResponse);
+    }
+    @ExceptionHandler(FailedUploadFileException.class)
+    public ResponseEntity<ExceptionResponse<String>> handleFailedUploadFile(FailedUploadFileException exception) {
+        ExceptionResponse<String> exceptionResponse = new ExceptionResponse<>(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                exception.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionResponse);
+    }
+
+
 
 
 }
