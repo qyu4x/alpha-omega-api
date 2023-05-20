@@ -7,6 +7,7 @@ import com.alphaomega.alphaomegarestfulapi.entity.User;
 import com.alphaomega.alphaomegarestfulapi.entity.UserSocialMedia;
 import com.alphaomega.alphaomegarestfulapi.exception.DataAlreadyExistsException;
 import com.alphaomega.alphaomegarestfulapi.exception.DataNotFoundException;
+import com.alphaomega.alphaomegarestfulapi.exception.FailedUploadFileException;
 import com.alphaomega.alphaomegarestfulapi.exception.InvalidOtpException;
 import com.alphaomega.alphaomegarestfulapi.payload.request.*;
 import com.alphaomega.alphaomegarestfulapi.payload.response.*;
@@ -17,6 +18,7 @@ import com.alphaomega.alphaomegarestfulapi.security.configuration.PasswordEncode
 import com.alphaomega.alphaomegarestfulapi.security.service.UserDetailsImpl;
 import com.alphaomega.alphaomegarestfulapi.security.util.JwtUtils;
 import com.alphaomega.alphaomegarestfulapi.security.util.OtpUtils;
+import com.alphaomega.alphaomegarestfulapi.service.FirebaseCloudStorageService;
 import com.alphaomega.alphaomegarestfulapi.service.UserService;
 import jakarta.mail.MessagingException;
 import jakarta.transaction.TransactionScoped;
@@ -31,6 +33,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -50,6 +53,8 @@ public class UserServiceImpl implements UserService {
 
     private RoleRepository roleRepository;
 
+    private FirebaseCloudStorageService  firebaseCloudStorageService;
+
     private PasswordEncoderConfiguration passwordEncoderConfiguration;
 
     private JwtUtils jwtUtils;
@@ -58,10 +63,11 @@ public class UserServiceImpl implements UserService {
 
     private OtpUtils otpUtils;
 
-    public UserServiceImpl(UserRepository userRepository, UserSocialMediaRepository userSocialMediaRepository, RoleRepository roleRepository, PasswordEncoderConfiguration passwordEncoderConfiguration, JwtUtils jwtUtils, AuthenticationManager authenticationManager, OtpUtils otpUtils) {
+    public UserServiceImpl(UserRepository userRepository, UserSocialMediaRepository userSocialMediaRepository, RoleRepository roleRepository, FirebaseCloudStorageService firebaseCloudStorageService, PasswordEncoderConfiguration passwordEncoderConfiguration, JwtUtils jwtUtils, AuthenticationManager authenticationManager, OtpUtils otpUtils) {
         this.userRepository = userRepository;
         this.userSocialMediaRepository = userSocialMediaRepository;
         this.roleRepository = roleRepository;
+        this.firebaseCloudStorageService = firebaseCloudStorageService;
         this.passwordEncoderConfiguration = passwordEncoderConfiguration;
         this.jwtUtils = jwtUtils;
         this.authenticationManager = authenticationManager;
@@ -299,6 +305,51 @@ public class UserServiceImpl implements UserService {
                     userRoleResponses.add(roleResponse);
                 });
 
+
+        return UserResponse.builder()
+                .id(user.getId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .roles(userRoleResponses)
+                .imageUrl(user.getImageUrl())
+                .instructorName(user.getInstructorName())
+                .caption(user.getCaption())
+                .biography(user.getBiography())
+                .deleted(user.getDeleted())
+                .isVerify(user.getIsVerify())
+                .webUrl(user.getUserSocialMedia().getWebUrl())
+                .facebookUrl(user.getUserSocialMedia().getFacebook())
+                .linkedinUrl(user.getUserSocialMedia().getLinkedinUrl())
+                .youtubeUrl(user.getUserSocialMedia().getYoutubeUrl())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
+                .build();
+    }
+
+    @Transactional
+    @Override
+    public UserResponse updateProfile(MultipartFile multipartFile, String userId) {
+        log.info("Perform the update profile process for user");
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+        if (multipartFile.isEmpty()) {
+            throw new FailedUploadFileException("Image cannot be empty");
+        }
+        String imageUrl = firebaseCloudStorageService.doUploadImageFile(multipartFile);
+        user.setImageUrl(imageUrl);
+        userRepository.save(user);
+        log.info("Successfully update user profile");
+
+        Set<RoleResponse> userRoleResponses = new HashSet<>();
+        user.getRoles().stream()
+                .forEach(role -> {
+                    RoleResponse roleResponse = RoleResponse.builder()
+                            .id(role.getId())
+                            .role(role.getName().name())
+                            .build();
+                    userRoleResponses.add(roleResponse);
+                });
 
         return UserResponse.builder()
                 .id(user.getId())

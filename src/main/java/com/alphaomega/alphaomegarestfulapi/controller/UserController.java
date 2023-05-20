@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -41,10 +42,17 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('USER') or hasRole('INSTRUCTOR')")
-    @PutMapping("/user")
-    public String user() {
-        log.info("test from user nya");
-        return "Test from user";
+    @PutMapping("/avatar/{id}")
+    public ResponseEntity<WebResponse<UserResponse>> updateAvatar(@RequestPart("image")MultipartFile image, @PathVariable("id") String id) {
+        log.info("request update from user id {} ", id);
+        UserResponse userResponse = userService.updateProfile(image, id);
+        WebResponse<UserResponse> webResponse = new WebResponse<>(
+                HttpStatus.OK.value(),
+                HttpStatus.OK.getReasonPhrase(),
+                userResponse
+        );
+
+        return ResponseEntity.status(HttpStatus.OK).body(webResponse);
     }
 
 }

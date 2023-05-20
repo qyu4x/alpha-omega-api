@@ -5,6 +5,7 @@ import com.alphaomega.alphaomegarestfulapi.payload.response.SigninResponse;
 import com.alphaomega.alphaomegarestfulapi.payload.response.SignupResponse;
 import com.alphaomega.alphaomegarestfulapi.payload.response.UserResponse;
 import jakarta.mail.MessagingException;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface UserService {
     SignupResponse signup(SignupRequest signupRequest) throws MessagingException;
@@ -15,4 +16,6 @@ public interface UserService {
     SignupResponse refreshVerifyOtp(OtpRefreshCodeRequest otpRefreshCodeRequest) throws MessagingException;
 
     UserResponse update(UpdateUserRequest updateUserRequest, String userId);
+
+    UserResponse updateProfile(MultipartFile multipartFile, String userId);
 }
