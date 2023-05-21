@@ -370,4 +370,42 @@ public class UserServiceImpl implements UserService {
                 .updatedAt(user.getUpdatedAt())
                 .build();
     }
+
+    @Transactional
+    @Override
+    public UserResponse findById(String userId) {
+        log.info("Perform find user by id");
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+        log.info("Successfully get user by id");
+
+        Set<RoleResponse> userRoleResponses = new HashSet<>();
+        user.getRoles().stream()
+                .forEach(role -> {
+                    RoleResponse roleResponse = RoleResponse.builder()
+                            .id(role.getId())
+                            .role(role.getName().name())
+                            .build();
+                    userRoleResponses.add(roleResponse);
+                });
+
+        return UserResponse.builder()
+                .id(user.getId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .roles(userRoleResponses)
+                .imageUrl(user.getImageUrl())
+                .instructorName(user.getInstructorName())
+                .caption(user.getCaption())
+                .biography(user.getBiography())
+                .deleted(user.getDeleted())
+                .isVerify(user.getIsVerify())
+                .webUrl(user.getUserSocialMedia().getWebUrl())
+                .facebookUrl(user.getUserSocialMedia().getFacebook())
+                .linkedinUrl(user.getUserSocialMedia().getLinkedinUrl())
+                .youtubeUrl(user.getUserSocialMedia().getYoutubeUrl())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
+                .build();
+    }
 }

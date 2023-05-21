@@ -18,4 +18,6 @@ public interface UserService {
     UserResponse update(UpdateUserRequest updateUserRequest, String userId);
 
     UserResponse updateProfile(MultipartFile multipartFile, String userId);
+
+    UserResponse findById(String userId);
 }

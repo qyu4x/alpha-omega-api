@@ -27,7 +27,22 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PreAuthorize("hasRole('USER') or hasRole('INSTRUCTOR')")
+    @PreAuthorize("hasRole('USER') or hasRole('INSTRUCTOR') or hasRole('ADMIN')")
+    @GetMapping("/{id}")
+    public ResponseEntity<WebResponse<UserResponse>> getUserInformation(@PathVariable("id") String id) {
+        log.info("request find user id {} ", id);
+        UserResponse userResponse = userService.findById(id);
+        WebResponse<UserResponse> webResponse = new WebResponse<>(
+                HttpStatus.OK.value(),
+                HttpStatus.OK.getReasonPhrase(),
+                userResponse
+        );
+
+        return ResponseEntity.status(HttpStatus.OK).body(webResponse);
+    }
+
+
+    @PreAuthorize("hasRole('USER') or hasRole('INSTRUCTOR') or hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<WebResponse<UserResponse>> updateInformation(@RequestBody @Valid UpdateUserRequest updateUserRequest, @PathVariable("id") String id) {
         log.info("request update from user id {} ", id);
@@ -41,7 +56,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(webResponse);
     }
 
-    @PreAuthorize("hasRole('USER') or hasRole('INSTRUCTOR')")
+    @PreAuthorize("hasRole('USER') or hasRole('INSTRUCTOR') or hasRole('ADMIN')")
     @PutMapping("/avatar/{id}")
     public ResponseEntity<WebResponse<UserResponse>> updateAvatar(@RequestPart("image")MultipartFile image, @PathVariable("id") String id) {
         log.info("request update from user id {} ", id);
