@@ -20,4 +20,6 @@ public interface UserService {
     UserResponse updateProfile(MultipartFile multipartFile, String userId);
 
     UserResponse findById(String userId);
+
+    Boolean delete(String userId);
 }

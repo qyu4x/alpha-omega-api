@@ -408,4 +408,17 @@ public class UserServiceImpl implements UserService {
                 .updatedAt(user.getUpdatedAt())
                 .build();
     }
+
+    @Transactional
+    @Override
+    public Boolean delete(String userId) {
+        log.info("Perform delete user by id");
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+        roleRepository.deleteUserRoleByUserId(userId);
+        userRepository.delete(user);
+        log.info("Successfully delete user by id");
+        return true;
+    }
 }

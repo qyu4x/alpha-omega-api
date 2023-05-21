@@ -41,6 +41,20 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(webResponse);
     }
 
+    @PreAuthorize("hasRole('USER') or hasRole('INSTRUCTOR') or hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<WebResponse<Boolean>> delete(@PathVariable("id") String id) {
+        log.info("request delete from user id {} ", id);
+        Boolean deleteResponse = userService.delete(id);
+        WebResponse<Boolean> webResponse = new WebResponse<>(
+                HttpStatus.OK.value(),
+                HttpStatus.OK.getReasonPhrase(),
+                deleteResponse
+        );
+
+        return ResponseEntity.status(HttpStatus.OK).body(webResponse);
+    }
+
 
     @PreAuthorize("hasRole('USER') or hasRole('INSTRUCTOR') or hasRole('ADMIN')")
     @PutMapping("/{id}")
@@ -69,5 +83,6 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.OK).body(webResponse);
     }
+
 
 }
