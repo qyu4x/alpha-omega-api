@@ -171,7 +171,7 @@ public class UserServiceImpl implements UserService {
             );
         } catch (DisabledException exception) {
             log.error("User account {} is disabled", email);
-            throw new DisabledException("account is disabled");
+            throw new DisabledException("Account is disabled");
         } catch (BadCredentialsException exception) {
             log.error("Username or password is wrong for user account {} ", email);
             throw new BadCredentialsException("Email or password is wrong");
