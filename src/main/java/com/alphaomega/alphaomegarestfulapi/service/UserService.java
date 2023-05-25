@@ -22,4 +22,5 @@ public interface UserService {
     UserResponse findById(String userId);
 
     Boolean delete(String userId);
+
 }

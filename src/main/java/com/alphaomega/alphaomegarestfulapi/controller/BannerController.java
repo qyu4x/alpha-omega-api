@@ -42,6 +42,21 @@ public class BannerController {
     }
 
     @PreAuthorize("hasRole('USER') or hasRole('INSTRUCTOR') or hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<WebResponse<Boolean>> deleteBanner(@PathVariable("id") String id) {
+        log.info("Request delete banner image");
+        Boolean deleteResponse = bannerService.delete(id);
+
+        WebResponse<Boolean> webResponse = new WebResponse<>(
+                HttpStatus.OK.value(),
+                HttpStatus.OK.getReasonPhrase(),
+                deleteResponse
+        );
+
+        return ResponseEntity.status(HttpStatus.OK).body(webResponse);
+    }
+
+    @PreAuthorize("hasRole('USER') or hasRole('INSTRUCTOR') or hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<WebResponse<BannerResponse>> updateBanner(@RequestPart("banner") MultipartFile banner, @PathVariable("id") String id) {
         log.info("Request upload banner image");

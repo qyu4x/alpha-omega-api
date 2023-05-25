@@ -100,4 +100,15 @@ public class BannerServiceImpl implements BannerService {
         log.info("Successfully get all image banner");
         return bannerResponses;
     }
+
+    @Transactional
+    @Override
+    public Boolean delete(String bannerId) {
+        log.info("Perform delete image banner");
+        Banner banner = bannerRepository.findById(bannerId)
+                .orElseThrow(() -> new DataNotFoundException("Data banner not found"));
+        bannerRepository.delete(banner);
+        log.info("Successfully delete image banner");
+        return true;
+    }
 }

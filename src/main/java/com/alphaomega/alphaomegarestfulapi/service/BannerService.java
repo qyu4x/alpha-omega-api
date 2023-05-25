@@ -11,4 +11,6 @@ public interface BannerService {
     BannerResponse update(MultipartFile file, String bannerId);
     List<BannerResponse> findAll();
 
+    Boolean delete(String bannerId);
+
 }
