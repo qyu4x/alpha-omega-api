@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -59,25 +60,23 @@ public class InitialServiceImpl implements InitialService {
         signupRequest.setEmail(this.email);
         signupRequest.setPassword(this.password);
 
-        userRepository.findByEmail(signupRequest.getEmail())
-                .ifPresent(exception -> {
-                    log.info("Account with email {} is available", signupRequest.getEmail());
-                });
+        Optional<User> userResponse = userRepository.findByEmail(signupRequest.getEmail());
+        if (userResponse.isEmpty()) {
+            Set<Role> adminRoles = new HashSet<>(roleRepository.findAll());
+            User user = User.builder()
+                    .id("adm-".concat(UUID.randomUUID().toString()))
+                    .fullName(signupRequest.getFullName())
+                    .email(signupRequest.getEmail())
+                    .password(passwordEncoderConfiguration.passwordEncoder().encode(signupRequest.getPassword()))
+                    .roles(adminRoles)
+                    .deleted(false)
+                    .isVerify(true)
+                    .expirationTime(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime().plusMinutes(5))
+                    .createdAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime())
+                    .build();
 
-        Set<Role> adminRoles = new HashSet<>(roleRepository.findAll());
-        User user = User.builder()
-                .id("adm-".concat(UUID.randomUUID().toString()))
-                .fullName(signupRequest.getFullName())
-                .email(signupRequest.getEmail())
-                .password(passwordEncoderConfiguration.passwordEncoder().encode(signupRequest.getPassword()))
-                .roles(adminRoles)
-                .deleted(false)
-                .isVerify(true)
-                .expirationTime(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime().plusMinutes(5))
-                .createdAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime())
-                .build();
-
-        userRepository.save(user);
+            userRepository.save(user);
+        }
         log.info("Successfully create admin account with email {}", signupRequest.getEmail());
     }
 }

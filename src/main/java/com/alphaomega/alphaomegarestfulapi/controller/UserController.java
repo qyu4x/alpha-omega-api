@@ -1,6 +1,7 @@
 package com.alphaomega.alphaomegarestfulapi.controller;
 
 import com.alphaomega.alphaomegarestfulapi.payload.request.UpdateUserRequest;
+import com.alphaomega.alphaomegarestfulapi.payload.response.PromoteResponse;
 import com.alphaomega.alphaomegarestfulapi.payload.response.UserResponse;
 import com.alphaomega.alphaomegarestfulapi.payload.response.WebResponse;
 import com.alphaomega.alphaomegarestfulapi.service.UserService;
@@ -79,6 +80,20 @@ public class UserController {
                 HttpStatus.OK.value(),
                 HttpStatus.OK.getReasonPhrase(),
                 userResponse
+        );
+
+        return ResponseEntity.status(HttpStatus.OK).body(webResponse);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/promote/{id}")
+    public ResponseEntity<WebResponse<PromoteResponse>> promoteToAdmin(@PathVariable("id") String id) {
+        log.info("request promote from user id {} ", id);
+        PromoteResponse promoteResponse = userService.promoteToInstructor(id);
+        WebResponse<PromoteResponse> webResponse = new WebResponse<>(
+                HttpStatus.OK.value(),
+                HttpStatus.OK.getReasonPhrase(),
+                promoteResponse
         );
 
         return ResponseEntity.status(HttpStatus.OK).body(webResponse);

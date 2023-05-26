@@ -1,16 +1,14 @@
 package com.alphaomega.alphaomegarestfulapi.service.implementation;
 
 
-import com.alphaomega.alphaomegarestfulapi.entity.ERole;
-import com.alphaomega.alphaomegarestfulapi.entity.Role;
-import com.alphaomega.alphaomegarestfulapi.entity.User;
-import com.alphaomega.alphaomegarestfulapi.entity.UserSocialMedia;
+import com.alphaomega.alphaomegarestfulapi.entity.*;
 import com.alphaomega.alphaomegarestfulapi.exception.DataAlreadyExistsException;
 import com.alphaomega.alphaomegarestfulapi.exception.DataNotFoundException;
 import com.alphaomega.alphaomegarestfulapi.exception.FailedUploadFileException;
 import com.alphaomega.alphaomegarestfulapi.exception.InvalidOtpException;
 import com.alphaomega.alphaomegarestfulapi.payload.request.*;
 import com.alphaomega.alphaomegarestfulapi.payload.response.*;
+import com.alphaomega.alphaomegarestfulapi.repository.InstructorRepository;
 import com.alphaomega.alphaomegarestfulapi.repository.RoleRepository;
 import com.alphaomega.alphaomegarestfulapi.repository.UserRepository;
 import com.alphaomega.alphaomegarestfulapi.repository.UserSocialMediaRepository;
@@ -63,7 +61,9 @@ public class UserServiceImpl implements UserService {
 
     private OtpUtils otpUtils;
 
-    public UserServiceImpl(UserRepository userRepository, UserSocialMediaRepository userSocialMediaRepository, RoleRepository roleRepository, FirebaseCloudStorageService firebaseCloudStorageService, PasswordEncoderConfiguration passwordEncoderConfiguration, JwtUtils jwtUtils, AuthenticationManager authenticationManager, OtpUtils otpUtils) {
+    private InstructorRepository instructorRepository;
+
+    public UserServiceImpl(UserRepository userRepository, UserSocialMediaRepository userSocialMediaRepository, RoleRepository roleRepository, FirebaseCloudStorageService firebaseCloudStorageService, PasswordEncoderConfiguration passwordEncoderConfiguration, JwtUtils jwtUtils, AuthenticationManager authenticationManager, OtpUtils otpUtils, InstructorRepository instructorRepository) {
         this.userRepository = userRepository;
         this.userSocialMediaRepository = userSocialMediaRepository;
         this.roleRepository = roleRepository;
@@ -72,6 +72,7 @@ public class UserServiceImpl implements UserService {
         this.jwtUtils = jwtUtils;
         this.authenticationManager = authenticationManager;
         this.otpUtils = otpUtils;
+        this.instructorRepository = instructorRepository;
     }
 
     @Override
@@ -420,5 +421,70 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(user);
         log.info("Successfully delete user by id");
         return true;
+    }
+
+    @Transactional
+    @Override
+    public PromoteResponse promoteToInstructor(String userId) {
+        log.info("Promote user to instructor");
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+        Role instructorRole = roleRepository.findByName(ERole.ROLE_INSTRUCTOR)
+                .orElseThrow(() -> new DataNotFoundException("ROLE_INSTRUCTOR not found"));
+        Set<Role> roles = new HashSet<>(user.getRoles());
+        roles.add(instructorRole);
+
+        user.setRoles(roles);
+        userRepository.save(user);
+
+        Set<RoleResponse> userRoleResponses = new HashSet<>();
+        user.getRoles().stream()
+                .forEach(role -> {
+                    RoleResponse roleResponse = RoleResponse.builder()
+                            .id(role.getId())
+                            .role(role.getName().name())
+                            .build();
+                    userRoleResponses.add(roleResponse);
+                });
+
+        Instructor instructor = Instructor.builder()
+                .id("is-".concat(UUID.randomUUID().toString()))
+                .user(user)
+                .createdAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime())
+                .updatedAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime())
+                .build();
+
+        instructorRepository.save(instructor);
+        log.info("Successfully promote user to instructor");
+
+        InstructorResponse instructorResponse = InstructorResponse.builder()
+                .id(instructor.getId())
+                .userId(user.getId())
+                .totalParticipant(0L)
+                .totalReview(0L)
+                .createdAt(instructor.getCreatedAt())
+                .createdAt(instructor.getUpdatedAt())
+                .build();
+
+        UserResponse userResponse = UserResponse.builder()
+                .id(user.getId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .roles(userRoleResponses)
+                .imageUrl(user.getImageUrl())
+                .instructorName(user.getInstructorName())
+                .caption(user.getCaption())
+                .biography(user.getBiography())
+                .deleted(user.getDeleted())
+                .isVerify(user.getIsVerify())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
+                .build();
+
+        return PromoteResponse.builder()
+                .user(userResponse)
+                .instructor(instructorResponse)
+                .build();
     }
 }

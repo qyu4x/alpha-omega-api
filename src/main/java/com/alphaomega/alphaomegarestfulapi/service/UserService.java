@@ -1,6 +1,7 @@
 package com.alphaomega.alphaomegarestfulapi.service;
 
 import com.alphaomega.alphaomegarestfulapi.payload.request.*;
+import com.alphaomega.alphaomegarestfulapi.payload.response.PromoteResponse;
 import com.alphaomega.alphaomegarestfulapi.payload.response.SigninResponse;
 import com.alphaomega.alphaomegarestfulapi.payload.response.SignupResponse;
 import com.alphaomega.alphaomegarestfulapi.payload.response.UserResponse;
@@ -22,5 +23,7 @@ public interface UserService {
     UserResponse findById(String userId);
 
     Boolean delete(String userId);
+
+    PromoteResponse promoteToInstructor(String userId);
 
 }
