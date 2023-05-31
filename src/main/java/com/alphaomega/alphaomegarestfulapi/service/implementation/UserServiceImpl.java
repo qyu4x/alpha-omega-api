@@ -451,6 +451,8 @@ public class UserServiceImpl implements UserService {
         Instructor instructor = Instructor.builder()
                 .id("is-".concat(UUID.randomUUID().toString()))
                 .user(user)
+                .totalParticipants(0L)
+                .totalReviews(0L)
                 .createdAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime())
                 .updatedAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime())
                 .build();
