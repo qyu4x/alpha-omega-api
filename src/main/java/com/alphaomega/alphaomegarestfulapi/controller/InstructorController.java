@@ -42,7 +42,6 @@ public class InstructorController {
         return ResponseEntity.status(HttpStatus.OK).body(webResponse);
     }
 
-    @PreAuthorize("hasRole('USER') or hasRole('INSTRUCTOR') or hasRole('ADMIN')")
     @GetMapping("/instructors")
     public ResponseEntity<WebResponse<List<InstructorDetailResponse>>> findAll() {
         log.info("Request get all instructor data");

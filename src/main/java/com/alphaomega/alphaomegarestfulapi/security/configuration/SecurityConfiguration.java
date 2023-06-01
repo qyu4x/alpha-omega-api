@@ -59,7 +59,9 @@ public class SecurityConfiguration {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers("/api/alpha/v1/auth/**");
+        return (web) -> web.ignoring().requestMatchers(
+                "/api/alpha/v1/auth/**", "/api/alpha/v1/course-categories", "/api/alpha/v1/banner/list", "/api/alpha/v1/instructors"
+        );
     }
 
     @Bean

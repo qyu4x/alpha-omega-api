@@ -26,7 +26,7 @@ public class BannerController {
         this.bannerService = bannerService;
     }
 
-    @PreAuthorize("hasRole('USER') or hasRole('INSTRUCTOR') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('INSTRUCTOR') or hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<WebResponse<BannerResponse>> createBanner(@RequestPart("banner") MultipartFile banner) {
         log.info("Request upload banner image");
@@ -41,7 +41,7 @@ public class BannerController {
         return ResponseEntity.status(HttpStatus.CREATED).body(webResponse);
     }
 
-    @PreAuthorize("hasRole('USER') or hasRole('INSTRUCTOR') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('INSTRUCTOR') or hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<WebResponse<Boolean>> deleteBanner(@PathVariable("id") String id) {
         log.info("Request delete banner image");
@@ -56,7 +56,7 @@ public class BannerController {
         return ResponseEntity.status(HttpStatus.OK).body(webResponse);
     }
 
-    @PreAuthorize("hasRole('USER') or hasRole('INSTRUCTOR') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('INSTRUCTOR') or hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<WebResponse<BannerResponse>> updateBanner(@RequestPart("banner") MultipartFile banner, @PathVariable("id") String id) {
         log.info("Request upload banner image");
@@ -71,7 +71,6 @@ public class BannerController {
         return ResponseEntity.status(HttpStatus.OK).body(webResponse);
     }
 
-    @PreAuthorize("hasRole('USER') or hasRole('INSTRUCTOR') or hasRole('ADMIN')")
     @GetMapping("/list")
     public ResponseEntity<WebResponse<List<BannerResponse>>> getAll() {
         log.info("Request upload banner image");
