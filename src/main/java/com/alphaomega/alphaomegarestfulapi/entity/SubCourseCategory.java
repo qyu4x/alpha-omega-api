@@ -9,23 +9,29 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.List;
 
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "course_categories")
-public class CourseCategory {
+@Table(name = "sub_course_categories")
+public class SubCourseCategory {
 
     @Id
     private String id;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "courseCategory")
-    private List<SubCourseCategory> subCourseCategories;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "subCourseCategory", orphanRemoval = false)
+    private List<Course> subCourseCategories;
 
     private String name;
 
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course_category_id")
+    private CourseCategory courseCategory;
+
 }
