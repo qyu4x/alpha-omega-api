@@ -23,6 +23,8 @@ public class UserResponse {
 
     private String imageUrl;
 
+    private String instructorId;
+
     private String instructorName;
 
     private String caption;
