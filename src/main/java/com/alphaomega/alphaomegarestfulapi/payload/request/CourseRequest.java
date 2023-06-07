@@ -17,20 +17,17 @@ import java.util.List;
 @NoArgsConstructor
 public class CourseRequest {
 
-    @NotBlank(message = "Instructor id can't be empty")
-    private String instructorId;
-
     @NotBlank(message = "Course category id can't be empty")
     private String courseCategoryId;
 
     @NotBlank(message = "Title can't be empty")
     private String title;
 
-    @NotBlank(message = "Summary can't be empty")
-    private String summary;
+    @NotBlank(message = "Description can't be empty")
+    private String description;
 
-    @NotBlank(message = "Detail summary can't be empty")
-    private String detailSummary;
+    @NotBlank(message = "Detail description can't be empty")
+    private String detailDescription;
 
     @DecimalMin(value = "0.0")
     private BigDecimal price;
@@ -42,6 +39,6 @@ public class CourseRequest {
     private List<LessonRequest> lessons;
 
     @Valid
-    private List<RequirementRequest> requests;
+    private List<RequirementRequest> requirements;
 
 }

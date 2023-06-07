@@ -5,6 +5,8 @@ import com.alphaomega.alphaomegarestfulapi.payload.response.CourseResponse;
 
 public interface CourseService {
 
-    CourseResponse create(CourseRequest courseRequest);
+    CourseResponse create(String instructorId,  CourseRequest courseRequest);
+
+
 
 }

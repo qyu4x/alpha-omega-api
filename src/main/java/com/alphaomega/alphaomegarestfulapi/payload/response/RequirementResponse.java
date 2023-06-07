@@ -2,6 +2,8 @@ package com.alphaomega.alphaomegarestfulapi.payload.response;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Builder
 @Getter
 @Setter
@@ -13,8 +15,8 @@ public class RequirementResponse {
 
     private String name;
 
-    private String createdAt;
+    private LocalDateTime createdAt;
 
-    private String updatedAt;
+    private LocalDateTime updatedAt;
 
 }
