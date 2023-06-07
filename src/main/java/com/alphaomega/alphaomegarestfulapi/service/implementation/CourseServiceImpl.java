@@ -46,13 +46,28 @@ public class CourseServiceImpl implements CourseService {
         CourseCategory courseCategory = courseCategoryRepository.findById(courseRequest.getCourseCategoryId())
                 .orElseThrow(() -> new DataNotFoundException("Course category not found"));
 
+        Course course = new Course();
+        course.setId("cxc-".concat(UUID.randomUUID().toString()));
+        course.setInstructor(instructor);
+        course.setCourseCategory(courseCategory);
+        course.setTitle(courseRequest.getTitle());
+        course.setDescription(courseRequest.getDescription());
+        course.setDetailDescription(courseRequest.getDetailDescription());
+        course.setPrice(courseRequest.getPrice());
+        course.setTotalParticipant(0L);
+        course.setRating(0.0);
+        course.setLanguage(courseRequest.getLanguage());
+        course.setCreatedAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime());
+        course.setUpdatedAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime());
+
         List<CourseLesson> courseLessons = new ArrayList<>();
         courseRequest.getLessons().stream().forEach(lessonRequest -> {
             CourseLesson courseLesson = new CourseLesson();
             courseLesson.setId("cxl-".concat(UUID.randomUUID().toString()));
-            courseLesson.setName(courseLesson.getName());
+            courseLesson.setName(lessonRequest.getName());
             courseLesson.setCreatedAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime());
             courseLesson.setUpdatedAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime());
+            courseLesson.setCourse(course);
 
             courseLessons.add(courseLesson);
         });
@@ -61,28 +76,16 @@ public class CourseServiceImpl implements CourseService {
         courseRequest.getRequirements().stream().forEach(requirementRequest -> {
             CourseRequirement courseRequirement = new CourseRequirement();
             courseRequirement.setId("cxr-".concat(UUID.randomUUID().toString()));
-            courseRequirement.setName(courseRequirement.getName());
+            courseRequirement.setName(requirementRequest.getName());
             courseRequirement.setCreatedAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime());
             courseRequirement.setUpdatedAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime());
+            courseRequirement.setCourse(course);
 
             courseRequirements.add(courseRequirement);
         });
 
-        Course course = new Course();
-        course.setId("cxc-".concat(UUID.randomUUID().toString()));
-        course.setInstructor(instructor);
-        course.setCourseLessons(courseLessons);
         course.setCourseRequirements(courseRequirements);
-        course.setCourseCategory(courseCategory);
-        course.setTitle(courseRequest.getTitle());
-        course.setDescription(course.getDescription());
-        course.setDetailDescription(course.getDetailDescription());
-        course.setPrice(courseRequest.getPrice());
-        course.setTotalParticipant(0L);
-        course.setRating(0.0);
-        course.setLanguage(course.getLanguage());
-        course.setCreatedAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime());
-        course.setUpdatedAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime());
+        course.setCourseLessons(courseLessons);
 
         courseRepository.save(course);
         log.info("Successfully save new course into database");

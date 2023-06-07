@@ -92,7 +92,7 @@ public class InitialServiceImpl implements InitialService {
             List<CourseCategory> courseCategories = new ArrayList<>();
 
             CourseCategory courseCategoryWebDevelopment = new CourseCategory();
-            courseCategoryWebDevelopment.setId("cc".concat(UUID.randomUUID().toString()));
+            courseCategoryWebDevelopment.setId("cc-".concat(UUID.randomUUID().toString()));
             courseCategoryWebDevelopment.setName("Web Development");
             courseCategoryWebDevelopment.setCreatedAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime());
             courseCategoryWebDevelopment.setUpdatedAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime());
