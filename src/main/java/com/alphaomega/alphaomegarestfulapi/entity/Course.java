@@ -29,8 +29,8 @@ public class Course {
     private Instructor instructor;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sub_course_category_id")
-    private SubCourseCategory subCourseCategory;
+    @JoinColumn(name = "course_category_id")
+    private CourseCategory courseCategory;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<CourseLesson> courseLessons;
@@ -50,7 +50,7 @@ public class Course {
     @OneToMany(mappedBy = "course", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ShoppingCart> shoppingCarts;
 
-    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY, orphanRemoval = true)
     private List<OrderDetail> orderDetails;
 
     @Column(columnDefinition = "TEXT")
@@ -66,7 +66,7 @@ public class Course {
 
     private Long totalParticipant;
 
-    private Boolean rating;
+    private Double rating;
 
     private String language;
 

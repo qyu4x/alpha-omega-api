@@ -268,7 +268,6 @@ public class UserServiceImpl implements UserService {
 
         UserSocialMedia userSocialMedia = userSocialMediaRepository.findByUserId(userId);
         if (userSocialMedia == null) {
-            log.info("this");
             userSocialMedia = UserSocialMedia.builder()
                     .id("sc-".concat(UUID.randomUUID().toString()))
                     .user(user)
@@ -363,10 +362,10 @@ public class UserServiceImpl implements UserService {
                 .biography(user.getBiography())
                 .deleted(user.getDeleted())
                 .isVerify(user.getIsVerify())
-                .webUrl(user.getUserSocialMedia().getWebUrl())
-                .facebookUrl(user.getUserSocialMedia().getFacebook())
-                .linkedinUrl(user.getUserSocialMedia().getLinkedinUrl())
-                .youtubeUrl(user.getUserSocialMedia().getYoutubeUrl())
+                .webUrl(user.getUserSocialMedia() != null ? user.getUserSocialMedia().getWebUrl() : null)
+                .facebookUrl(user.getUserSocialMedia() != null ? user.getUserSocialMedia().getFacebook() : null)
+                .linkedinUrl(user.getUserSocialMedia() != null ? user.getUserSocialMedia().getLinkedinUrl() : null)
+                .youtubeUrl(user.getUserSocialMedia() != null ? user.getUserSocialMedia().getYoutubeUrl() : null)
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();
@@ -396,15 +395,16 @@ public class UserServiceImpl implements UserService {
                 .email(user.getEmail())
                 .roles(userRoleResponses)
                 .imageUrl(user.getImageUrl())
+                .instructorId(user.getInstructor() != null ? user.getInstructor().getId() : null)
                 .instructorName(user.getInstructorName())
                 .caption(user.getCaption())
                 .biography(user.getBiography())
                 .deleted(user.getDeleted())
                 .isVerify(user.getIsVerify())
-                .webUrl(user.getUserSocialMedia().getWebUrl())
-                .facebookUrl(user.getUserSocialMedia().getFacebook())
-                .linkedinUrl(user.getUserSocialMedia().getLinkedinUrl())
-                .youtubeUrl(user.getUserSocialMedia().getYoutubeUrl())
+                .webUrl(user.getUserSocialMedia() != null ? user.getUserSocialMedia().getWebUrl() : null)
+                .facebookUrl(user.getUserSocialMedia() != null ? user.getUserSocialMedia().getFacebook() : null)
+                .linkedinUrl(user.getUserSocialMedia() != null ? user.getUserSocialMedia().getLinkedinUrl() : null)
+                .youtubeUrl(user.getUserSocialMedia() != null ? user.getUserSocialMedia().getYoutubeUrl() : null)
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();
