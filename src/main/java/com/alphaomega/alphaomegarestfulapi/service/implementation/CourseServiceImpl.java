@@ -11,6 +11,7 @@ import com.alphaomega.alphaomegarestfulapi.service.CourseService;
 import com.alphaomega.alphaomegarestfulapi.util.CurrencyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -30,6 +31,9 @@ public class CourseServiceImpl implements CourseService {
     private InstructorRepository instructorRepository;
 
     private CourseCategoryRepository courseCategoryRepository;
+
+    @Value("${course.banner.default}")
+    private String defaultBannerUrl;
 
     public CourseServiceImpl(CourseRepository courseRepository, InstructorRepository instructorRepository, CourseCategoryRepository courseCategoryRepository) {
         this.courseRepository = courseRepository;
@@ -54,6 +58,7 @@ public class CourseServiceImpl implements CourseService {
         course.setDescription(courseRequest.getDescription());
         course.setDetailDescription(courseRequest.getDetailDescription());
         course.setPrice(courseRequest.getPrice());
+        course.setBannerUrl(defaultBannerUrl);
         course.setTotalParticipant(0L);
         course.setRating(0.0);
         course.setLanguage(courseRequest.getLanguage());
@@ -131,6 +136,7 @@ public class CourseServiceImpl implements CourseService {
         courseResponse.setTotalParticipant(course.getTotalParticipant());
         courseResponse.setDescription(course.getDescription());
         courseResponse.setDetailDescription(course.getDetailDescription());
+        courseResponse.setBannerUrl(defaultBannerUrl);
         courseResponse.setCourseCategory(courseCategoryResponse);
         courseResponse.setPrice(priceResponse);
         courseResponse.setLessons(courseLessonResponses);
