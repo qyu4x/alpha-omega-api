@@ -28,4 +28,5 @@ public class CourseCategory {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
 }

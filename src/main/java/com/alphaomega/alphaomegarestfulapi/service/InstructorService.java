@@ -14,5 +14,7 @@ public interface InstructorService {
 
     UserResponse updateInstructorName(String instructorId, InstructorBiodataRequest instructorBiodataRequest);
 
+    Boolean deleteInstructorById(String instructorId);
+
 
 }

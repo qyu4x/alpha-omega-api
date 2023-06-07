@@ -35,18 +35,12 @@ public class CourseServiceImpl implements CourseService {
 
     private CourseCategoryRepository courseCategoryRepository;
 
-    private CommentRepository commentRepository;
-
-    private OrderDetailRepository orderDetailRepository;
-
     private FirebaseCloudStorageService firebaseCloudStorageService;
 
-    public CourseServiceImpl(CourseRepository courseRepository, InstructorRepository instructorRepository, CourseCategoryRepository courseCategoryRepository, CommentRepository commentRepository, OrderDetailRepository orderDetailRepository, FirebaseCloudStorageService firebaseCloudStorageService) {
+    public CourseServiceImpl(CourseRepository courseRepository, InstructorRepository instructorRepository, CourseCategoryRepository courseCategoryRepository, FirebaseCloudStorageService firebaseCloudStorageService) {
         this.courseRepository = courseRepository;
         this.instructorRepository = instructorRepository;
         this.courseCategoryRepository = courseCategoryRepository;
-        this.commentRepository = commentRepository;
-        this.orderDetailRepository = orderDetailRepository;
         this.firebaseCloudStorageService = firebaseCloudStorageService;
     }
 

@@ -177,4 +177,14 @@ public class InstructorServiceImpl implements InstructorService {
                 .updatedAt(user.getUpdatedAt())
                 .build();
     }
+
+    @Override
+    public Boolean deleteInstructorById(String instructorId) {
+        log.info("Delete instructor with id {}", instructorId);
+        Instructor instructor = instructorRepository.findById(instructorId)
+                .orElseThrow(() -> new DataNotFoundException("Instructor not found"));
+        instructorRepository.delete(instructor);
+        log.info("Successfully delete course with id {}", instructorId);
+        return true;
+    }
 }
