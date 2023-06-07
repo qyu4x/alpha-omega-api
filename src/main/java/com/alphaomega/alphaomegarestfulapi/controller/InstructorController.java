@@ -70,4 +70,19 @@ public class InstructorController {
 
         return ResponseEntity.status(HttpStatus.OK).body(webResponse);
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/instructor/{id}")
+    public ResponseEntity<WebResponse<Boolean>> deleteInstructor(@PathVariable("id") String id) {
+        log.info("Request delete instructor data");
+        Boolean status = instructorService.deleteInstructorById(id);
+
+        WebResponse<Boolean> webResponse = new WebResponse<>(
+                HttpStatus.OK.value(),
+                HttpStatus.OK.getReasonPhrase(),
+                status
+        );
+
+        return ResponseEntity.status(HttpStatus.OK).body(webResponse);
+    }
 }

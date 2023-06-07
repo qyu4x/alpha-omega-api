@@ -25,7 +25,7 @@ public class Instructor {
     @OneToMany(mappedBy = "instructor", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Course> courses;
 
-    @OneToMany(mappedBy = "instructor", fetch = FetchType.LAZY, orphanRemoval = false)
+    @OneToMany(mappedBy = "instructor", fetch = FetchType.LAZY, orphanRemoval = true)
     private List<InstructorArticle> instructorArticles;
 
     private Long totalParticipants;
