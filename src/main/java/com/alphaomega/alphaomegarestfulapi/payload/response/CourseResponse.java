@@ -4,6 +4,8 @@ import com.alphaomega.alphaomegarestfulapi.entity.CourseCategory;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 @Getter
@@ -12,13 +14,15 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class CourseResponse {
 
+    private String id;
+
     private String instructorId;
 
     private String title;
 
-    private String summary;
+    private String description;
 
-    private String detailSummary;
+    private String detailDescription;
 
     private String bannerUrl;
 
@@ -30,10 +34,14 @@ public class CourseResponse {
 
     private PriceResponse price;
 
-    private CourseCategory courseCategory;
+    private CourseCategoryResponse courseCategory;
 
-    private LessonResponse lessons;
+    private List<LessonResponse> lessons;
 
-    private RequirementResponse requirements;
+    private List<RequirementResponse> requirements;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 
 }

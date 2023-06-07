@@ -268,7 +268,6 @@ public class UserServiceImpl implements UserService {
 
         UserSocialMedia userSocialMedia = userSocialMediaRepository.findByUserId(userId);
         if (userSocialMedia == null) {
-            log.info("this");
             userSocialMedia = UserSocialMedia.builder()
                     .id("sc-".concat(UUID.randomUUID().toString()))
                     .user(user)
