@@ -20,12 +20,13 @@ public class CourseCategory {
     @Id
     private String id;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "courseCategory")
-    private List<SubCourseCategory> subCourseCategories;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "courseCategory", orphanRemoval = false)
+    private List<Course> courses;
 
     private String name;
 
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
 }

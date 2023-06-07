@@ -29,8 +29,8 @@ public class Course {
     private Instructor instructor;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sub_course_category_id")
-    private SubCourseCategory subCourseCategory;
+    @JoinColumn(name = "course_category_id")
+    private CourseCategory courseCategory;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<CourseLesson> courseLessons;
