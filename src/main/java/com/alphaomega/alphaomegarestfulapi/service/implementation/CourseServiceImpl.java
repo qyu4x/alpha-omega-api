@@ -300,14 +300,6 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public Boolean deleteById(String courseId) {
         log.info("Delete course with id {}", courseId);
-        if (commentRepository.findByCourseId(courseId).size() > 0) {
-            commentRepository.deleteCommentByCourseId(courseId);
-        }
-
-        if (orderDetailRepository.findOrderDetailByCourseId(courseId).size() > 0) {
-            orderDetailRepository.deleteOrderDetailByCourseId(courseId);
-        }
-
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new DataNotFoundException("Course not found"));
         courseRepository.delete(course);
