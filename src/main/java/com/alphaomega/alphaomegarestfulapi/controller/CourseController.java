@@ -1,6 +1,7 @@
 package com.alphaomega.alphaomegarestfulapi.controller;
 
 import com.alphaomega.alphaomegarestfulapi.payload.request.CourseRequest;
+import com.alphaomega.alphaomegarestfulapi.payload.request.UpdateCourseRequest;
 import com.alphaomega.alphaomegarestfulapi.payload.response.BannerResponse;
 import com.alphaomega.alphaomegarestfulapi.payload.response.CourseResponse;
 import com.alphaomega.alphaomegarestfulapi.payload.response.WebResponse;
@@ -45,8 +46,23 @@ public class CourseController {
     @PreAuthorize("hasRole('INSTRUCTOR') or hasRole('ADMIN')")
     @PutMapping("/course/banner/{courseId}")
     public ResponseEntity<WebResponse<CourseResponse>> updateBanner(@RequestPart("image") MultipartFile image, @PathVariable("courseId") String courseId) {
-        log.info("Request create course from instructor id {}", courseId);
+        log.info("Request update banner image course id {}", courseId);
         CourseResponse courseResponse = courseService.updateBanner(image, courseId);
+
+        WebResponse<CourseResponse> webResponse = new WebResponse<>(
+                HttpStatus.OK.value(),
+                HttpStatus.OK.getReasonPhrase(),
+                courseResponse
+        );
+
+        return ResponseEntity.status(HttpStatus.OK).body(webResponse);
+    }
+
+    @PreAuthorize("hasRole('INSTRUCTOR') or hasRole('ADMIN')")
+    @PutMapping("/course/{courseId}")
+    public ResponseEntity<WebResponse<CourseResponse>> updateBanner(@Valid @RequestBody UpdateCourseRequest courseRequest, @PathVariable("courseId") String courseId) {
+        log.info("Reques update course  id {}", courseId);
+        CourseResponse courseResponse = courseService.update(courseRequest, courseId);
 
         WebResponse<CourseResponse> webResponse = new WebResponse<>(
                 HttpStatus.OK.value(),
