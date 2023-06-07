@@ -42,4 +42,19 @@ public class CourseController {
         return ResponseEntity.status(HttpStatus.CREATED).body(webResponse);
     }
 
+    @PreAuthorize("hasRole('INSTRUCTOR') or hasRole('ADMIN')")
+    @PutMapping("/course/banner/{courseId}")
+    public ResponseEntity<WebResponse<CourseResponse>> updateBanner(@RequestPart("image") MultipartFile image, @PathVariable("courseId") String courseId) {
+        log.info("Request create course from instructor id {}", courseId);
+        CourseResponse courseResponse = courseService.updateBanner(image, courseId);
+
+        WebResponse<CourseResponse> webResponse = new WebResponse<>(
+                HttpStatus.OK.value(),
+                HttpStatus.OK.getReasonPhrase(),
+                courseResponse
+        );
+
+        return ResponseEntity.status(HttpStatus.OK).body(webResponse);
+    }
+
 }

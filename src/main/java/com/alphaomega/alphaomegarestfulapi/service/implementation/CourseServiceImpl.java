@@ -2,17 +2,21 @@ package com.alphaomega.alphaomegarestfulapi.service.implementation;
 
 import com.alphaomega.alphaomegarestfulapi.entity.*;
 import com.alphaomega.alphaomegarestfulapi.exception.DataNotFoundException;
+import com.alphaomega.alphaomegarestfulapi.exception.FailedUploadFileException;
 import com.alphaomega.alphaomegarestfulapi.payload.request.CourseRequest;
 import com.alphaomega.alphaomegarestfulapi.payload.response.*;
 import com.alphaomega.alphaomegarestfulapi.repository.CourseCategoryRepository;
 import com.alphaomega.alphaomegarestfulapi.repository.CourseRepository;
 import com.alphaomega.alphaomegarestfulapi.repository.InstructorRepository;
 import com.alphaomega.alphaomegarestfulapi.service.CourseService;
+import com.alphaomega.alphaomegarestfulapi.service.FirebaseCloudStorageService;
 import com.alphaomega.alphaomegarestfulapi.util.CurrencyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -32,14 +36,17 @@ public class CourseServiceImpl implements CourseService {
 
     private CourseCategoryRepository courseCategoryRepository;
 
-    @Value("${course.banner.default}")
-    private String defaultBannerUrl;
+    private FirebaseCloudStorageService firebaseCloudStorageService;
 
-    public CourseServiceImpl(CourseRepository courseRepository, InstructorRepository instructorRepository, CourseCategoryRepository courseCategoryRepository) {
+    public CourseServiceImpl(CourseRepository courseRepository, InstructorRepository instructorRepository, CourseCategoryRepository courseCategoryRepository, FirebaseCloudStorageService firebaseCloudStorageService) {
         this.courseRepository = courseRepository;
         this.instructorRepository = instructorRepository;
         this.courseCategoryRepository = courseCategoryRepository;
+        this.firebaseCloudStorageService = firebaseCloudStorageService;
     }
+
+    @Value("${course.banner.default}")
+    private String defaultBannerUrl;
 
     @Override
     public CourseResponse create(String instructorId, CourseRequest courseRequest) {
@@ -138,6 +145,75 @@ public class CourseServiceImpl implements CourseService {
         courseResponse.setLanguage(course.getLanguage());
         courseResponse.setDetailDescription(course.getDetailDescription());
         courseResponse.setBannerUrl(defaultBannerUrl);
+        courseResponse.setCourseCategory(courseCategoryResponse);
+        courseResponse.setPrice(priceResponse);
+        courseResponse.setLessons(courseLessonResponses);
+        courseResponse.setRequirements(courseRequirementResponses);
+        courseResponse.setCreatedAt(course.getCreatedAt());
+        courseResponse.setUpdatedAt(course.getUpdatedAt());
+
+        return courseResponse;
+    }
+
+    @Transactional
+    @Override
+    public CourseResponse updateBanner(MultipartFile multipartFile, String courseId) {
+        log.info("Update banner for course id {}", courseId);
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new DataNotFoundException("Course not found"));
+
+        if (multipartFile.isEmpty()) {
+            throw new FailedUploadFileException("Image can't be empty");
+        }
+        course.setBannerUrl(firebaseCloudStorageService.doUploadImageFile(multipartFile));
+        courseRepository.save(course);
+        log.info("Successfully update banner for course id {}", courseId);
+
+
+        CourseCategoryResponse courseCategoryResponse = new CourseCategoryResponse();
+        courseCategoryResponse.setId(course.getCourseCategory().getId());
+        courseCategoryResponse.setName(course.getCourseCategory().getName());
+        courseCategoryResponse.setCreatedAt(course.getCourseCategory().getCreatedAt());
+        courseCategoryResponse.setUpdatedAt(course.getCourseCategory().getUpdatedAt());
+
+        List<LessonResponse> courseLessonResponses = new ArrayList<>();
+        course.getCourseLessons().stream().forEach(courseLesson -> {
+            LessonResponse courseLessonResponse = new LessonResponse();
+            courseLessonResponse.setId(courseLesson.getId());
+            courseLessonResponse.setName(courseLesson.getName());
+            courseLessonResponse.setCreatedAt(courseLesson.getCreatedAt());
+            courseLessonResponse.setUpdatedAt(courseLesson.getUpdatedAt());
+
+            courseLessonResponses.add(courseLessonResponse);
+        });
+
+        List<RequirementResponse> courseRequirementResponses = new ArrayList<>();
+        course.getCourseRequirements().stream().forEach(courseRequirement -> {
+            RequirementResponse requirementResponse = new RequirementResponse();
+            requirementResponse.setId(courseRequirement.getId());
+            requirementResponse.setName(courseRequirement.getName());
+            requirementResponse.setCreatedAt(courseRequirement.getCreatedAt());
+            requirementResponse.setUpdatedAt(courseRequirement.getUpdatedAt());
+
+            courseRequirementResponses.add(requirementResponse);
+        });
+
+        PriceResponse priceResponse = new PriceResponse();
+        priceResponse.setAmount(course.getPrice());
+        priceResponse.setDisplay(CurrencyUtil.convertToDisplayCurrency(course.getPrice()));
+        priceResponse.setCurrencyCode(CurrencyUtil.getIndonesiaCurrencyCode());
+
+
+        CourseResponse courseResponse = new CourseResponse();
+        courseResponse.setId(course.getId());
+        courseResponse.setInstructorId(course.getInstructor().getId());
+        courseResponse.setTitle(course.getTitle());
+        courseResponse.setRating(course.getRating());
+        courseResponse.setTotalParticipant(course.getTotalParticipant());
+        courseResponse.setDescription(course.getDescription());
+        courseResponse.setLanguage(course.getLanguage());
+        courseResponse.setDetailDescription(course.getDetailDescription());
+        courseResponse.setBannerUrl(course.getBannerUrl());
         courseResponse.setCourseCategory(courseCategoryResponse);
         courseResponse.setPrice(priceResponse);
         courseResponse.setLessons(courseLessonResponses);
