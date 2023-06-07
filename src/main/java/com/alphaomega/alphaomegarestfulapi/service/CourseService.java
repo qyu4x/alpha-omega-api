@@ -12,4 +12,7 @@ public interface CourseService {
     CourseResponse updateBanner(MultipartFile multipartFile, String courseId);
 
     CourseResponse update(UpdateCourseRequest updateCourseRequest, String courseId);
+
+    Boolean deleteById(String courseId);
+
 }

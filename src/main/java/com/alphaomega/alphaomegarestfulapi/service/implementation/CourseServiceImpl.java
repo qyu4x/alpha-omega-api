@@ -6,9 +6,7 @@ import com.alphaomega.alphaomegarestfulapi.exception.FailedUploadFileException;
 import com.alphaomega.alphaomegarestfulapi.payload.request.CourseRequest;
 import com.alphaomega.alphaomegarestfulapi.payload.request.UpdateCourseRequest;
 import com.alphaomega.alphaomegarestfulapi.payload.response.*;
-import com.alphaomega.alphaomegarestfulapi.repository.CourseCategoryRepository;
-import com.alphaomega.alphaomegarestfulapi.repository.CourseRepository;
-import com.alphaomega.alphaomegarestfulapi.repository.InstructorRepository;
+import com.alphaomega.alphaomegarestfulapi.repository.*;
 import com.alphaomega.alphaomegarestfulapi.service.CourseService;
 import com.alphaomega.alphaomegarestfulapi.service.FirebaseCloudStorageService;
 import com.alphaomega.alphaomegarestfulapi.util.CurrencyUtil;
@@ -37,12 +35,18 @@ public class CourseServiceImpl implements CourseService {
 
     private CourseCategoryRepository courseCategoryRepository;
 
+    private CommentRepository commentRepository;
+
+    private OrderDetailRepository orderDetailRepository;
+
     private FirebaseCloudStorageService firebaseCloudStorageService;
 
-    public CourseServiceImpl(CourseRepository courseRepository, InstructorRepository instructorRepository, CourseCategoryRepository courseCategoryRepository, FirebaseCloudStorageService firebaseCloudStorageService) {
+    public CourseServiceImpl(CourseRepository courseRepository, InstructorRepository instructorRepository, CourseCategoryRepository courseCategoryRepository, CommentRepository commentRepository, OrderDetailRepository orderDetailRepository, FirebaseCloudStorageService firebaseCloudStorageService) {
         this.courseRepository = courseRepository;
         this.instructorRepository = instructorRepository;
         this.courseCategoryRepository = courseCategoryRepository;
+        this.commentRepository = commentRepository;
+        this.orderDetailRepository = orderDetailRepository;
         this.firebaseCloudStorageService = firebaseCloudStorageService;
     }
 
@@ -290,5 +294,24 @@ public class CourseServiceImpl implements CourseService {
         courseResponse.setUpdatedAt(course.getUpdatedAt());
 
         return courseResponse;
+    }
+
+    @Transactional
+    @Override
+    public Boolean deleteById(String courseId) {
+        log.info("Delete course with id {}", courseId);
+        if (commentRepository.findByCourseId(courseId).size() > 0) {
+            commentRepository.deleteCommentByCourseId(courseId);
+        }
+
+        if (orderDetailRepository.findOrderDetailByCourseId(courseId).size() > 0) {
+            orderDetailRepository.deleteOrderDetailByCourseId(courseId);
+        }
+
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new DataNotFoundException("Course not found"));
+        courseRepository.delete(course);
+        log.info("Successfully delete course with id {}", courseId);
+        return true;
     }
 }
