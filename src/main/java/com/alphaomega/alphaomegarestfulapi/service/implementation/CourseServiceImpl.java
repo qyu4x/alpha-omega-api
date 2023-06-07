@@ -135,6 +135,7 @@ public class CourseServiceImpl implements CourseService {
         courseResponse.setRating(course.getRating());
         courseResponse.setTotalParticipant(course.getTotalParticipant());
         courseResponse.setDescription(course.getDescription());
+        courseResponse.setLanguage(course.getLanguage());
         courseResponse.setDetailDescription(course.getDetailDescription());
         courseResponse.setBannerUrl(defaultBannerUrl);
         courseResponse.setCourseCategory(courseCategoryResponse);
