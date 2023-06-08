@@ -77,11 +77,11 @@ public class BannerController {
         List<BannerResponse> bannerResponses = bannerService.findAll();
 
         WebResponse<List<BannerResponse>> webResponse = new WebResponse<>(
-                HttpStatus.CREATED.value(),
-                HttpStatus.CREATED.getReasonPhrase(),
+                HttpStatus.OK.value(),
+                HttpStatus.OK.getReasonPhrase(),
                 bannerResponses
         );
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(webResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(webResponse);
     }
 }

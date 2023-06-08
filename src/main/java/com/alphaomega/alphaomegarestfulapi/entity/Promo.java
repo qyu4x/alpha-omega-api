@@ -10,7 +10,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -27,10 +29,12 @@ public class Promo {
     @Size(max = 20)
     private String code;
 
+    private LocalDate expirationDate;
+
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    private BigInteger totalDiscount;
+    private BigDecimal totalDiscount;
 
     private LocalDateTime createdAt;
 
