@@ -108,6 +108,11 @@
 			<artifactId>jaffree</artifactId>
 			<version>2022.06.03</version>
 		</dependency>
+		<dependency>
+			<groupId>org.jcodec</groupId>
+			<artifactId>jcodec</artifactId>
+			<version>0.2.4</version>
+		</dependency>
 	</dependencies>
 
 	<build>

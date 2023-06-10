@@ -51,20 +51,22 @@ public class FirebaseCloudStorageServiceImpl implements FirebaseCloudStorageServ
     }
 
     @Override
-    public CloudUploadVideoResponse doUploadVideoFile(MultipartFile multipartFile) {
+    public CloudUploadVideoResponse doUploadVideoFile(MultipartFile multipartFile) throws IOException {
         String originalFilename = multipartFile.getOriginalFilename();
         String finalFileName = UUID.randomUUID().toString()
                 .concat(getVideoExtension(originalFilename));
 
         File file = convertToFile(multipartFile, finalFileName);
+        log.info("path video is {}", file.getAbsolutePath());
+
         Integer durationVideo = VideoUtil.getDurationVideo(file.getAbsolutePath());
         String videoUrl = uploadFile(file, finalFileName);
 
         CloudUploadVideoResponse cloudUploadVideoResponse = new CloudUploadVideoResponse();
         cloudUploadVideoResponse.setVideoUrl(videoUrl);
         cloudUploadVideoResponse.setDurationInSecond(durationVideo);
-
         file.delete();
+
         return cloudUploadVideoResponse;
     }
 

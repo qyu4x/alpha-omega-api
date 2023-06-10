@@ -1,23 +1,33 @@
 package com.alphaomega.alphaomegarestfulapi.util;
 
-import com.github.kokorin.jaffree.ffprobe.FFprobe;
-import com.github.kokorin.jaffree.ffprobe.FFprobeResult;
+
+import org.jcodec.common.DemuxerTrack;
+import org.jcodec.common.io.FileChannelWrapper;
+import org.jcodec.common.io.NIOUtils;
+import org.jcodec.containers.mp4.demuxer.MP4Demuxer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 import java.io.File;
+import java.io.IOException;
+
 
 public class VideoUtil {
 
-    public static Integer getDurationVideo(String absolutePath) {
-        FFprobeResult result = FFprobe.atPath()
-                .setShowStreams(true)
-                .setInput(absolutePath)
-                .execute();
+    private static final Logger log = LoggerFactory.getLogger(VideoUtil.class);
 
-        return result.getStreams().stream()
-                .filter(stream -> "video".equals(stream.getCodecType()))
-                .findFirst()
-                .map(stream -> stream.getDuration().intValue())
-                .orElse(0);
+    public static Integer getDurationVideo(String filePath) throws IOException {
+        FileChannelWrapper fileChannelWrapper = NIOUtils.readableFileChannel(filePath);
+        MP4Demuxer demuxer = MP4Demuxer.createMP4Demuxer(fileChannelWrapper);
+        DemuxerTrack videoTrack = demuxer.getVideoTrack();
+        log.info("video_duration: {}", videoTrack.getMeta().getTotalDuration());
+        int durationInSecond = Double.valueOf(videoTrack.getMeta().getTotalDuration()).intValue();
+
+        demuxer.close();
+        fileChannelWrapper.close();
+
+        return durationInSecond;
     }
 
 }
