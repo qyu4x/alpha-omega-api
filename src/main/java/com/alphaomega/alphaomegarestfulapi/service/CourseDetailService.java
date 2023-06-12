@@ -10,4 +10,6 @@ public interface CourseDetailService {
 
     CourseDetailResponse create(String title, MultipartFile videoSource, String courseId, String courseContentId) throws IOException;
 
+    Boolean deleteById(String courseDetailId);
+
 }

@@ -46,4 +46,21 @@ public class CourseDetailController {
 
         return ResponseEntity.status(HttpStatus.CREATED.value()).body(webResponse);
     }
+
+    @PreAuthorize("hasRole('INSTRUCTOR') or hasRole('ADMIN')")
+    @DeleteMapping("/course-detail/{id}")
+    public ResponseEntity<WebResponse<Boolean>> deleteContentDetail(@PathVariable("id") String id) {
+        log.info("Request delete course detail data");
+        Boolean status = courseDetailService.deleteById(id);
+
+        WebResponse<Boolean> webResponse = new WebResponse<>(
+                HttpStatus.OK.value(),
+                HttpStatus.OK.getReasonPhrase(),
+                status
+        );
+
+        return ResponseEntity.status(HttpStatus.OK).body(webResponse);
+    }
+
+
 }

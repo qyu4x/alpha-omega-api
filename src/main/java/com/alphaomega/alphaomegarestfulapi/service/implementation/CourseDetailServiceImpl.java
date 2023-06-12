@@ -81,4 +81,14 @@ public class CourseDetailServiceImpl implements CourseDetailService {
 
         return courseDetailResponse;
     }
+    @Transactional
+    @Override
+    public Boolean deleteById(String courseDetailId) {
+        log.info("Delete course detail with id {}", courseDetailId);
+        CourseDetail courseDetail = courseDetailRepository.findById(courseDetailId)
+                .orElseThrow(() -> new DataNotFoundException("Course content not found"));
+        courseDetailRepository.delete(courseDetail);
+        log.info("Successfully delete course with id {}", courseDetailId);
+        return true;
+    }
 }
