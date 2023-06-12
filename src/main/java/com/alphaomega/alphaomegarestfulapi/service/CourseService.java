@@ -13,6 +13,8 @@ public interface CourseService {
 
     CourseResponse update(UpdateCourseRequest updateCourseRequest, String courseId);
 
+    CourseResponse findById(String courseId);
+
     Boolean deleteById(String courseId);
 
 }

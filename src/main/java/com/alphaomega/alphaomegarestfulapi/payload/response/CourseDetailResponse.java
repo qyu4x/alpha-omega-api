@@ -19,6 +19,8 @@ public class CourseDetailResponse {
 
     private String duration;
 
+    Boolean isLocked;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

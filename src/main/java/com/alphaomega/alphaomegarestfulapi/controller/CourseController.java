@@ -4,6 +4,7 @@ import com.alphaomega.alphaomegarestfulapi.payload.request.CourseRequest;
 import com.alphaomega.alphaomegarestfulapi.payload.request.UpdateCourseRequest;
 import com.alphaomega.alphaomegarestfulapi.payload.response.BannerResponse;
 import com.alphaomega.alphaomegarestfulapi.payload.response.CourseResponse;
+import com.alphaomega.alphaomegarestfulapi.payload.response.UserResponse;
 import com.alphaomega.alphaomegarestfulapi.payload.response.WebResponse;
 import com.alphaomega.alphaomegarestfulapi.service.CourseService;
 import jakarta.validation.Valid;
@@ -83,6 +84,19 @@ public class CourseController {
                 HttpStatus.OK.value(),
                 HttpStatus.OK.getReasonPhrase(),
                 status
+        );
+
+        return ResponseEntity.status(HttpStatus.OK).body(webResponse);
+    }
+
+    @GetMapping("/course/{id}")
+    public ResponseEntity<WebResponse<CourseResponse>> findById(@PathVariable("id") String id) {
+        log.info("request find course with id {} ", id);
+        CourseResponse courseResponse = courseService.findById(id);
+        WebResponse<CourseResponse> webResponse = new WebResponse<>(
+                HttpStatus.OK.value(),
+                HttpStatus.OK.getReasonPhrase(),
+                courseResponse
         );
 
         return ResponseEntity.status(HttpStatus.OK).body(webResponse);

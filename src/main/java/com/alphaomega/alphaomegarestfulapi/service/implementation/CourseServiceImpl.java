@@ -10,6 +10,7 @@ import com.alphaomega.alphaomegarestfulapi.repository.*;
 import com.alphaomega.alphaomegarestfulapi.service.CourseService;
 import com.alphaomega.alphaomegarestfulapi.service.FirebaseCloudStorageService;
 import com.alphaomega.alphaomegarestfulapi.util.CurrencyUtil;
+import com.alphaomega.alphaomegarestfulapi.util.DurationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +24,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class CourseServiceImpl implements CourseService {
@@ -35,12 +37,19 @@ public class CourseServiceImpl implements CourseService {
 
     private CourseCategoryRepository courseCategoryRepository;
 
+    private CourseContentRepository courseContentRepository;
+
+
+    private CourseDetailRepository courseDetailRepository;
+
     private FirebaseCloudStorageService firebaseCloudStorageService;
 
-    public CourseServiceImpl(CourseRepository courseRepository, InstructorRepository instructorRepository, CourseCategoryRepository courseCategoryRepository, FirebaseCloudStorageService firebaseCloudStorageService) {
+    public CourseServiceImpl(CourseRepository courseRepository, InstructorRepository instructorRepository, CourseCategoryRepository courseCategoryRepository, CourseContentRepository courseContentRepository, CourseDetailRepository courseDetailRepository, FirebaseCloudStorageService firebaseCloudStorageService) {
         this.courseRepository = courseRepository;
         this.instructorRepository = instructorRepository;
         this.courseCategoryRepository = courseCategoryRepository;
+        this.courseContentRepository = courseContentRepository;
+        this.courseDetailRepository = courseDetailRepository;
         this.firebaseCloudStorageService = firebaseCloudStorageService;
     }
 
@@ -283,6 +292,115 @@ public class CourseServiceImpl implements CourseService {
         courseResponse.setCourseCategory(courseCategoryResponse);
         courseResponse.setPrice(priceResponse);
         courseResponse.setLessons(courseLessonResponses);
+        courseResponse.setRequirements(courseRequirementResponses);
+        courseResponse.setCreatedAt(course.getCreatedAt());
+        courseResponse.setUpdatedAt(course.getUpdatedAt());
+
+        return courseResponse;
+    }
+
+    @Transactional
+    @Override
+    public CourseResponse findById(String courseId) {
+        log.info("Find course with id {}", courseId);
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new DataNotFoundException("Course not found"));
+
+        // content locked
+        Boolean videoLocked = true;
+        // check from table order detail[ongoing]
+
+        CourseCategoryResponse courseCategoryResponse = new CourseCategoryResponse();
+        courseCategoryResponse.setId(course.getCourseCategory().getId());
+        courseCategoryResponse.setName(course.getCourseCategory().getName());
+        courseCategoryResponse.setCreatedAt(course.getCourseCategory().getCreatedAt());
+        courseCategoryResponse.setUpdatedAt(course.getCourseCategory().getUpdatedAt());
+
+        List<LessonResponse> courseLessonResponses = new ArrayList<>();
+        course.getCourseLessons().stream().forEach(courseLesson -> {
+            LessonResponse courseLessonResponse = new LessonResponse();
+            courseLessonResponse.setId(courseLesson.getId());
+            courseLessonResponse.setName(courseLesson.getName());
+            courseLessonResponse.setCreatedAt(courseLesson.getCreatedAt());
+            courseLessonResponse.setUpdatedAt(courseLesson.getUpdatedAt());
+
+            courseLessonResponses.add(courseLessonResponse);
+        });
+
+        List<RequirementResponse> courseRequirementResponses = new ArrayList<>();
+        course.getCourseRequirements().stream().forEach(courseRequirement -> {
+            RequirementResponse requirementResponse = new RequirementResponse();
+            requirementResponse.setId(courseRequirement.getId());
+            requirementResponse.setName(courseRequirement.getName());
+            requirementResponse.setCreatedAt(courseRequirement.getCreatedAt());
+            requirementResponse.setUpdatedAt(courseRequirement.getUpdatedAt());
+
+            courseRequirementResponses.add(requirementResponse);
+        });
+
+        PriceResponse priceResponse = new PriceResponse();
+        priceResponse.setAmount(course.getPrice());
+        priceResponse.setDisplay(CurrencyUtil.convertToDisplayCurrency(course.getPrice()));
+        priceResponse.setCurrencyCode(CurrencyUtil.getIndonesiaCurrencyCode());
+
+        List<CourseContentResponse> courseContentResponses = new ArrayList<>();
+
+        AtomicReference<Integer> totalLectures = new AtomicReference<>(0);
+        if (course.getCourseContents() != null) {
+            course.getCourseContents().stream().forEach(courseContent -> {
+                Integer countOfContentDetail = courseContentRepository.findCountOfContentDetailByContentId(courseContent.getId());
+                totalLectures.updateAndGet(value -> value + countOfContentDetail);
+
+                log.info("Copntent id {}", courseContent.getId());
+                Integer totalDurationOfContentDetail = courseContentRepository.findTotalDurationOfContentDetailByContentId(courseContent.getId());
+                log.info("video duration content detail {}", totalDurationOfContentDetail);
+
+                CourseContentResponse courseContentResponse = new CourseContentResponse();
+                courseContentResponse.setId(courseContent.getId());
+                courseContentResponse.setTitleSubCourse(courseContent.getTitleSubCourse());
+                courseContentResponse.setTotalDuration(DurationUtil.getVideoDurationDisplayFormat(totalDurationOfContentDetail == null ? 0 : totalDurationOfContentDetail));
+                courseContentResponse.setTotalLectures(countOfContentDetail);
+                courseContentResponse.setCreatedAt(courseContent.getCreatedAt());
+                courseContentResponse.setUpdatedAt(courseContent.getUpdatedAt());
+
+                if (courseContent.getCourseDetails() != null) {
+                    List<CourseDetailResponse> courseDetailResponses = new ArrayList<>();
+                    List<CourseDetail> courseDetails = courseDetailRepository.findCourseDetailByCourseContentIdOrderByCreatedAtAsc(courseContent.getId());
+                    courseDetails.stream().forEach(courseDetail -> {
+                       CourseDetailResponse courseDetailResponse = new CourseDetailResponse();
+
+                        courseDetailResponse.setId(courseDetail.getId());
+                        courseDetailResponse.setTitle(courseDetail.getTitle());
+                        courseDetailResponse.setVideoUrl(courseDetail.getVideoUrl());
+                        courseDetailResponse.setIsLocked(videoLocked);
+                        courseDetailResponse.setDuration(DurationUtil.getVideoDurationDisplayFormat(courseDetail.getDuration()));
+                        courseDetailResponse.setCreatedAt(courseDetail.getCreatedAt());
+                        courseDetailResponse.setUpdatedAt(courseDetail.getCreatedAt());
+
+                        courseDetailResponses.add(courseDetailResponse);
+                    });
+
+                    courseContentResponse.setCourseDetails(courseDetailResponses);
+                }
+                courseContentResponses.add(courseContentResponse);
+            });
+
+        }
+        CourseResponse courseResponse = new CourseResponse();
+        courseResponse.setId(course.getId());
+        courseResponse.setInstructorId(course.getInstructor().getId());
+        courseResponse.setTitle(course.getTitle());
+        courseResponse.setRating(course.getRating());
+        courseResponse.setTotalParticipant(course.getTotalParticipant());
+        courseResponse.setDescription(course.getDescription());
+        courseResponse.setLanguage(course.getLanguage());
+        courseResponse.setDetailDescription(course.getDetailDescription());
+        courseResponse.setBannerUrl(course.getBannerUrl());
+        courseResponse.setCourseCategory(courseCategoryResponse);
+        courseResponse.setPrice(priceResponse);
+        courseResponse.setTotalLectures(totalLectures.get());
+        courseResponse.setLessons(courseLessonResponses);
+        courseResponse.setContents(courseContentResponses);
         courseResponse.setRequirements(courseRequirementResponses);
         courseResponse.setCreatedAt(course.getCreatedAt());
         courseResponse.setUpdatedAt(course.getUpdatedAt());

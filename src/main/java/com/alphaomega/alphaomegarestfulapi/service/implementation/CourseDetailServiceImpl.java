@@ -75,6 +75,7 @@ public class CourseDetailServiceImpl implements CourseDetailService {
         courseDetailResponse.setId(courseDetail.getId());
         courseDetailResponse.setTitle(courseDetail.getTitle());
         courseDetailResponse.setVideoUrl(courseDetail.getVideoUrl());
+        courseDetailResponse.setIsLocked(true);
         courseDetailResponse.setDuration(DurationUtil.getVideoDurationDisplayFormat(courseDetail.getDuration()));
         courseDetailResponse.setCreatedAt(courseDetail.getCreatedAt());
         courseDetailResponse.setUpdatedAt(courseDetail.getCreatedAt());

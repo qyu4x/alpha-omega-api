@@ -26,6 +26,8 @@ public class CourseResponse {
 
     private String bannerUrl;
 
+    private Integer totalLectures;
+
     private Long totalParticipant;
 
     private Double rating;
@@ -39,6 +41,8 @@ public class CourseResponse {
     private List<LessonResponse> lessons;
 
     private List<RequirementResponse> requirements;
+
+    List<CourseContentResponse> contents;
 
     private LocalDateTime createdAt;
 
