@@ -77,7 +77,7 @@ public class CourseController {
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/course/{courseId}")
     public ResponseEntity<WebResponse<Boolean>> deleteCourse(@PathVariable("courseId") String courseId) {
-        log.info("Reques update course  id {}", courseId);
+        log.info("Request update course  id {}", courseId);
         Boolean status = courseService.deleteById(courseId);
 
         WebResponse<Boolean> webResponse = new WebResponse<>(
