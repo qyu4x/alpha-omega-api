@@ -23,4 +23,7 @@ public interface CourseContentRepository extends JpaRepository<CourseContent, St
                     "    INNER JOIN course_detail cd on cc.id = cd.course_content_id WHERE cc.id = :courseContentId\n"
     )
     Integer findCountOfContentDetailByContentId(@Param("courseContentId") String courseContentId);
+
+    List<CourseContent> findAllByCourseId(String courseId);
+
 }

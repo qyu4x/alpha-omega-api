@@ -62,7 +62,7 @@ public class SecurityConfiguration {
         return (web) -> web.ignoring().requestMatchers(
                 "/api/alpha/v1/auth/**", "/api/alpha/v1/course-categories", "/api/alpha/v1/banner/list", "/api/alpha/v1/instructors",
                 "/swagger-ui/**", "/v3/api-docs/**",
-                "/api/alpha/v1/course/**"
+                "/api/alpha/v1/course/**", "/api/alpha/v1/content/*",  "/api/alpha/v1/contents/*"
         );
     }
 

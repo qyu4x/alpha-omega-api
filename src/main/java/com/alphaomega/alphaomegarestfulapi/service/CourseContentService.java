@@ -9,4 +9,12 @@ public interface CourseContentService {
 
     List<CourseContentResponse> create(List<CourseContentRequest> courseContentRequest, String instructorId, String courseId);
 
+    CourseContentResponse findById(String courseContentId);
+
+    List<CourseContentResponse> findAllByCourseId(String courseId);
+
+    Boolean deleteById(String courseContentId);
+
+    CourseContentResponse update(CourseContentRequest courseContentRequest, String courseContentId);
+
 }
