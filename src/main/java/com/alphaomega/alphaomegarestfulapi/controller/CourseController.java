@@ -62,7 +62,7 @@ public class CourseController {
     @PreAuthorize("hasRole('INSTRUCTOR') or hasRole('ADMIN')")
     @PutMapping("/course/{courseId}")
     public ResponseEntity<WebResponse<CourseResponse>> updateBanner(@Valid @RequestBody UpdateCourseRequest courseRequest, @PathVariable("courseId") String courseId) {
-        log.info("Reques update course  id {}", courseId);
+        log.info("Request update course  id {}", courseId);
         CourseResponse courseResponse = courseService.update(courseRequest, courseId);
 
         WebResponse<CourseResponse> webResponse = new WebResponse<>(
