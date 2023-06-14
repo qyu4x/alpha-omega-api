@@ -4,8 +4,8 @@ import com.alphaomega.alphaomegarestfulapi.entity.CourseContent;
 import com.alphaomega.alphaomegarestfulapi.entity.CourseDetail;
 import com.alphaomega.alphaomegarestfulapi.exception.DataNotFoundException;
 import com.alphaomega.alphaomegarestfulapi.payload.response.CloudUploadVideoResponse;
-import com.alphaomega.alphaomegarestfulapi.payload.response.CourseContentResponse;
 import com.alphaomega.alphaomegarestfulapi.payload.response.CourseDetailResponse;
+import com.alphaomega.alphaomegarestfulapi.payload.response.CourseResponse;
 import com.alphaomega.alphaomegarestfulapi.repository.CourseContentRepository;
 import com.alphaomega.alphaomegarestfulapi.repository.CourseDetailRepository;
 import com.alphaomega.alphaomegarestfulapi.repository.CourseRepository;
@@ -92,4 +92,36 @@ public class CourseDetailServiceImpl implements CourseDetailService {
         log.info("Successfully delete course with id {}", courseDetailId);
         return true;
     }
+
+    @Transactional
+    @Override
+    public CourseDetailResponse update(String title, MultipartFile videoSource, String courseDetailId) throws IOException {
+        log.info("Do update video for  course detail id id {}", courseDetailId);
+        CourseDetail courseDetail = courseDetailRepository.findById(courseDetailId)
+                .orElseThrow(() -> new DataNotFoundException("Video not found"));
+        UploadFileCheckerUtil.uploadVideoChecker(title, videoSource);
+        CloudUploadVideoResponse cloudUploadVideoResponse = firebaseCloudStorageService.doUploadVideoFile(videoSource);
+        log.info("duration video is {} second", cloudUploadVideoResponse.getDurationInSecond());
+
+        courseDetail.setTitle(title);
+        courseDetail.setDuration(cloudUploadVideoResponse.getDurationInSecond());
+        courseDetail.setVideoUrl(cloudUploadVideoResponse.getVideoUrl());
+        courseDetail.setUpdatedAt(OffsetDateTime.of(LocalDateTime.now(),ZoneOffset.ofHours(7)).toLocalDateTime());
+
+        courseDetailRepository.save(courseDetail);
+        log.info("Successfully update course detail with id {}", courseDetailId);
+
+        CourseDetailResponse courseDetailResponse = new CourseDetailResponse();
+        courseDetailResponse.setId(courseDetail.getId());
+        courseDetailResponse.setTitle(courseDetail.getTitle());
+        courseDetailResponse.setVideoUrl(courseDetail.getVideoUrl());
+        courseDetailResponse.setIsLocked(true);
+        courseDetailResponse.setDuration(DurationUtil.getVideoDurationDisplayFormat(courseDetail.getDuration()));
+        courseDetailResponse.setCreatedAt(courseDetail.getCreatedAt());
+        courseDetailResponse.setUpdatedAt(courseDetail.getCreatedAt());
+
+        return courseDetailResponse;
+    }
+
+
 }

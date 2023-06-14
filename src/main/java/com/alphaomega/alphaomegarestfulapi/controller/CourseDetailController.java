@@ -46,6 +46,22 @@ public class CourseDetailController {
 
         return ResponseEntity.status(HttpStatus.CREATED.value()).body(webResponse);
     }
+    @PreAuthorize("hasRole('INSTRUCTOR') or hasRole('ADMIN')")
+    @PutMapping("/course-detail/{courseDetailId}")
+    public ResponseEntity<WebResponse<CourseDetailResponse>> update(@RequestPart("title") String title,
+                                                                    @RequestPart("video") MultipartFile video,
+                                                                    @PathVariable("courseDetailId") String courseDetailId) throws IOException {
+        log.info("Request update video content detail");
+        CourseDetailResponse courseDetailResponse = courseDetailService.update(title, video, courseDetailId);
+        WebResponse<CourseDetailResponse> webResponse = new WebResponse<>(
+                HttpStatus.OK.value(),
+                HttpStatus.OK.getReasonPhrase(),
+                courseDetailResponse
+        );
+
+        return ResponseEntity.status(HttpStatus.OK.value()).body(webResponse);
+    }
+
 
     @PreAuthorize("hasRole('INSTRUCTOR') or hasRole('ADMIN')")
     @DeleteMapping("/course-detail/{id}")
