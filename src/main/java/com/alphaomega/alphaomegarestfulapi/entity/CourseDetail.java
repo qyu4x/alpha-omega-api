@@ -32,8 +32,8 @@ public class CourseDetail {
     @URL
     private String videoUrl;
 
-    @Column(name = "duration_in_minutes")
-    private Duration duration;
+    @Column(name = "duration_in_second")
+    private Integer duration;
 
     @OneToMany(mappedBy = "courseDetail", fetch = FetchType.LAZY, orphanRemoval = true)
     private List<UserWatchingHistory> userWatchingHistories;

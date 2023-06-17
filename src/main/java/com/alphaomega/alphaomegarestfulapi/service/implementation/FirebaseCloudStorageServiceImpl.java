@@ -3,7 +3,9 @@ package com.alphaomega.alphaomegarestfulapi.service.implementation;
 import com.alphaomega.alphaomegarestfulapi.configuration.FirebaseCloudStorageConfiguration;
 import com.alphaomega.alphaomegarestfulapi.exception.FailedUploadFileException;
 import com.alphaomega.alphaomegarestfulapi.exception.FileUploadException;
+import com.alphaomega.alphaomegarestfulapi.payload.response.CloudUploadVideoResponse;
 import com.alphaomega.alphaomegarestfulapi.service.FirebaseCloudStorageService;
+import com.alphaomega.alphaomegarestfulapi.util.VideoUtil;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
@@ -49,16 +51,23 @@ public class FirebaseCloudStorageServiceImpl implements FirebaseCloudStorageServ
     }
 
     @Override
-    public String doUploadVideoFile(MultipartFile multipartFile) {
+    public CloudUploadVideoResponse doUploadVideoFile(MultipartFile multipartFile) throws IOException {
         String originalFilename = multipartFile.getOriginalFilename();
         String finalFileName = UUID.randomUUID().toString()
                 .concat(getVideoExtension(originalFilename));
 
         File file = convertToFile(multipartFile, finalFileName);
+        log.info("path video is {}", file.getAbsolutePath());
+
+        Integer durationVideo = VideoUtil.getDurationVideo(file.getAbsolutePath());
         String videoUrl = uploadFile(file, finalFileName);
+
+        CloudUploadVideoResponse cloudUploadVideoResponse = new CloudUploadVideoResponse();
+        cloudUploadVideoResponse.setVideoUrl(videoUrl);
+        cloudUploadVideoResponse.setDurationInSecond(durationVideo);
         file.delete();
 
-        return videoUrl;
+        return cloudUploadVideoResponse;
     }
 
     @Override
