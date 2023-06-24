@@ -1,13 +1,11 @@
 package com.alphaomega.alphaomegarestfulapi.service.implementation;
 
-import com.alphaomega.alphaomegarestfulapi.entity.CourseCategory;
-import com.alphaomega.alphaomegarestfulapi.entity.ERole;
-import com.alphaomega.alphaomegarestfulapi.entity.Role;
-import com.alphaomega.alphaomegarestfulapi.entity.User;
+import com.alphaomega.alphaomegarestfulapi.entity.*;
 import com.alphaomega.alphaomegarestfulapi.exception.DataAlreadyExistsException;
 import com.alphaomega.alphaomegarestfulapi.exception.DataNotFoundException;
 import com.alphaomega.alphaomegarestfulapi.payload.request.SignupRequest;
 import com.alphaomega.alphaomegarestfulapi.repository.CourseCategoryRepository;
+import com.alphaomega.alphaomegarestfulapi.repository.PaymentMethodRepository;
 import com.alphaomega.alphaomegarestfulapi.repository.RoleRepository;
 import com.alphaomega.alphaomegarestfulapi.repository.UserRepository;
 import com.alphaomega.alphaomegarestfulapi.security.configuration.PasswordEncoderConfiguration;
@@ -47,11 +45,15 @@ public class InitialServiceImpl implements InitialService {
 
     private PasswordEncoderConfiguration passwordEncoderConfiguration;
 
-    public InitialServiceImpl(UserRepository userRepository, RoleRepository roleRepository, CourseCategoryRepository courseCategoryRepository, PasswordEncoderConfiguration passwordEncoderConfiguration) {
+
+    private PaymentMethodRepository paymentMethodRepository;
+
+    public InitialServiceImpl(UserRepository userRepository, RoleRepository roleRepository, CourseCategoryRepository courseCategoryRepository, PasswordEncoderConfiguration passwordEncoderConfiguration, PaymentMethodRepository paymentMethodRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.courseCategoryRepository = courseCategoryRepository;
         this.passwordEncoderConfiguration = passwordEncoderConfiguration;
+        this.paymentMethodRepository = paymentMethodRepository;
     }
 
     @PostConstruct
@@ -135,6 +137,54 @@ public class InitialServiceImpl implements InitialService {
 
             courseCategoryRepository.saveAll(courseCategories);
             log.info("Successfully save all course categories");
+        }
+
+    }
+
+    @PostConstruct
+    @Override
+    public void initPaymentMethod() {
+        List<PaymentMethod> paymentMethods = new ArrayList<>();
+        if (paymentMethodRepository.findAll().isEmpty()) {
+            PaymentMethod indomart = new PaymentMethod();
+            indomart.setId("pm-".concat(UUID.randomUUID().toString()));
+            indomart.setName("Indomart");
+            indomart.setLogoUrl("https://i.ibb.co/HrdDNC4/hpp-doku-indomaret.png");
+            indomart.setCreatedAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime());
+
+            PaymentMethod alfamart = new PaymentMethod();
+            alfamart.setId("pm-".concat(UUID.randomUUID().toString()));
+            alfamart.setName("Alfamart");
+            alfamart.setLogoUrl("https://i.ibb.co/drF81zz/hpp-doku-alfamart.png");
+            alfamart.setCreatedAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime());
+
+            PaymentMethod ovo = new PaymentMethod();
+            ovo.setId("pm-".concat(UUID.randomUUID().toString()));
+            ovo.setName("Ovo");
+            ovo.setLogoUrl("https://i.ibb.co/vwQdRpK/hpp-doku-ovo.png");
+            ovo.setCreatedAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime());
+
+
+            PaymentMethod bri = new PaymentMethod();
+            bri.setId("pm-".concat(UUID.randomUUID().toString()));
+            bri.setName("Bank Transfer to Bank BRI");
+            bri.setLogoUrl("https://i.ibb.co/JnsY2YG/hpp-doku-bri-va.png");
+            bri.setCreatedAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime());
+
+            PaymentMethod bni = new PaymentMethod();
+            bni.setId("pm-".concat(UUID.randomUUID().toString()));
+            bni.setName("Bank Transfer to Bank BNI");
+            bni.setLogoUrl("https://i.ibb.co/1qzVXm4/hpp-doku-bni-va.png");
+            bni.setCreatedAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime());
+
+            paymentMethods.add(indomart);
+            paymentMethods.add(alfamart);
+            paymentMethods.add(ovo);
+            paymentMethods.add(bri);
+            paymentMethods.add(bni);
+
+            paymentMethodRepository.saveAll(paymentMethods);
+            log.info("Successfully save payment method");
         }
 
     }
