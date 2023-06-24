@@ -24,6 +24,8 @@ public class PaymentMethod {
     @JoinColumn(name = "payment_id")
     private Payment payment;
 
+    private String logoUrl;
+
     @Size(max = 25)
     private String name;
 
