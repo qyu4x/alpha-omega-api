@@ -6,4 +6,6 @@ public interface InitialService {
     void initCourseCategories();
 
     void initPaymentMethod();
+
+    void initNotificationCategory();
 }

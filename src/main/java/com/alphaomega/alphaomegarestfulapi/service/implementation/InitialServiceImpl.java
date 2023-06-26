@@ -4,10 +4,7 @@ import com.alphaomega.alphaomegarestfulapi.entity.*;
 import com.alphaomega.alphaomegarestfulapi.exception.DataAlreadyExistsException;
 import com.alphaomega.alphaomegarestfulapi.exception.DataNotFoundException;
 import com.alphaomega.alphaomegarestfulapi.payload.request.SignupRequest;
-import com.alphaomega.alphaomegarestfulapi.repository.CourseCategoryRepository;
-import com.alphaomega.alphaomegarestfulapi.repository.PaymentMethodRepository;
-import com.alphaomega.alphaomegarestfulapi.repository.RoleRepository;
-import com.alphaomega.alphaomegarestfulapi.repository.UserRepository;
+import com.alphaomega.alphaomegarestfulapi.repository.*;
 import com.alphaomega.alphaomegarestfulapi.security.configuration.PasswordEncoderConfiguration;
 import com.alphaomega.alphaomegarestfulapi.service.InitialService;
 import com.alphaomega.alphaomegarestfulapi.service.UserService;
@@ -48,12 +45,16 @@ public class InitialServiceImpl implements InitialService {
 
     private PaymentMethodRepository paymentMethodRepository;
 
-    public InitialServiceImpl(UserRepository userRepository, RoleRepository roleRepository, CourseCategoryRepository courseCategoryRepository, PasswordEncoderConfiguration passwordEncoderConfiguration, PaymentMethodRepository paymentMethodRepository) {
+
+    private NotificationCategoryRepository notificationCategoryRepository;
+
+    public InitialServiceImpl(UserRepository userRepository, RoleRepository roleRepository, CourseCategoryRepository courseCategoryRepository, PasswordEncoderConfiguration passwordEncoderConfiguration, PaymentMethodRepository paymentMethodRepository, NotificationCategoryRepository notificationCategoryRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.courseCategoryRepository = courseCategoryRepository;
         this.passwordEncoderConfiguration = passwordEncoderConfiguration;
         this.paymentMethodRepository = paymentMethodRepository;
+        this.notificationCategoryRepository = notificationCategoryRepository;
     }
 
     @PostConstruct
@@ -187,6 +188,33 @@ public class InitialServiceImpl implements InitialService {
             log.info("Successfully save payment method");
         }
 
+    }
+
+    @PostConstruct
+    @Override
+    public void initNotificationCategory() {
+        log.info("Create init notification category");
+        if (notificationCategoryRepository.findAll().isEmpty()) {
+            List<NotificationCategory> notificationCategories = new ArrayList<>();
+
+            NotificationCategory publicNotification = new NotificationCategory();
+            publicNotification.setId("ncs".concat(UUID.randomUUID().toString()));
+            publicNotification.setName("Update");
+            publicNotification.setCreatedAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime());
+            publicNotification.setUpdatedAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime());
+
+            NotificationCategory privateNotification = new NotificationCategory();
+            privateNotification.setId("ncs".concat(UUID.randomUUID().toString()));
+            privateNotification.setName("Transaction");
+            privateNotification.setCreatedAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime());
+            privateNotification.setUpdatedAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime());
+
+            notificationCategories.add(publicNotification);
+            notificationCategories.add(privateNotification);
+
+            notificationCategoryRepository.saveAll(notificationCategories);
+        }
+        log.info("Successfully create notification category");
     }
 
 }
