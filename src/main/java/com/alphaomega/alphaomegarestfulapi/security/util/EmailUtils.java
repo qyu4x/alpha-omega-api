@@ -1,6 +1,5 @@
 package com.alphaomega.alphaomegarestfulapi.security.util;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -10,17 +9,86 @@ import org.springframework.stereotype.Service;
 import java.util.Random;
 
 @Service
-public class OtpUtils {
+public class EmailUtils {
 
     private JavaMailSender javaMailSender;
 
-    public OtpUtils(JavaMailSender javaMailSender) {
+    public EmailUtils(JavaMailSender javaMailSender) {
         this.javaMailSender = javaMailSender;
     }
 
     public Integer generateOtp() {
         Random random = new Random();
         return  100000 + random.nextInt(900000);
+    }
+
+    public String htmlBodyOrderSuccess() {
+        String text = "<!DOCTYPE html>\n" +
+                "<html>\n" +
+                "<head>\n" +
+                "    <style>\n" +
+                "        body {\n" +
+                "            font-family: Arial, sans-serif;\n" +
+                "            background-color: #f2f2f2;\n" +
+                "            text-align: center;\n" +
+                "        }\n" +
+                "\n" +
+                "        .container {\n" +
+                "            max-width: 500px;\n" +
+                "            margin: 0 auto;\n" +
+                "            background-color: #fff;\n" +
+                "            padding: 40px;\n" +
+                "            border-radius: 8px;\n" +
+                "            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);\n" +
+                "        }\n" +
+                "\n" +
+                "        h1 {\n" +
+                "            color: #333;\n" +
+                "            font-size: 24px;\n" +
+                "            margin-top: 0;\n" +
+                "        }\n" +
+                "\n" +
+                "        p {\n" +
+                "            color: #777;\n" +
+                "            margin-bottom: 20px;\n" +
+                "            font-size: 16px;\n" +
+                "            line-height: 1.5;\n" +
+                "        }\n" +
+                "\n" +
+                "        .success-image {\n" +
+                "            margin-bottom: 20px;\n" +
+                "            max-width: 100%;\n" +
+                "            height: auto;\n" +
+                "        }\n" +
+                "\n" +
+                "        .button {\n" +
+                "            display: inline-block;\n" +
+                "            background-color: #ff6b6b;\n" +
+                "            color: #fff;\n" +
+                "            padding: 12px 24px;\n" +
+                "            border-radius: 4px;\n" +
+                "            text-decoration: none;\n" +
+                "            transition: background-color 0.3s;\n" +
+                "            font-size: 18px;\n" +
+                "        }\n" +
+                "\n" +
+                "        .button:hover {\n" +
+                "            background-color: #ff5252;\n" +
+                "        }\n" +
+                "    </style>\n" +
+                "</head>\n" +
+                "<body>\n" +
+                "    <div class=\"container\">\n" +
+                "        <h1>Payment Successful!</h1>\n" +
+                "        <img src=\"https://i.ibb.co/wwcrddx/ezgif-com-gif-maker.gif\" alt=\"Payment Success\" class=\"success-image\">\n" +
+                "        <p>Thank you for subscribing to our premium educational platform. Your payment has been successfully processed.</p>\n" +
+                "        <p>Start your learning journey today and explore a world of knowledge!</p>\n" +
+                "        <a href=\"#\" class=\"button\">Access Courses</a>\n" +
+                "    </div>\n" +
+                "</body>\n" +
+                "</html>\n";
+
+        return text;
     }
 
     public String htmlBody(String name, String code) {
@@ -113,6 +181,18 @@ public class OtpUtils {
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
         helper.setTo(to);
         helper.setSubject(subject);
+        helper.setText(text, true);
+
+        javaMailSender.send(message);
+    }
+
+    public void sendEmailOrderSuccess(String to) throws MessagingException{
+        String text = htmlBodyOrderSuccess();
+        MimeMessage message = javaMailSender.createMimeMessage();
+
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+        helper.setTo(to);
+        helper.setSubject("Thank You! Your Payment has been Successfully Processed");
         helper.setText(text, true);
 
         javaMailSender.send(message);

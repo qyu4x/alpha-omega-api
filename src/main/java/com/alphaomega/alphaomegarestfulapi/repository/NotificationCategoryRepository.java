@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface NotificationCategoryRepository extends JpaRepository<NotificationCategory, String> {
+    NotificationCategory findNotificationCategoryByName(String categoryName);
 }
