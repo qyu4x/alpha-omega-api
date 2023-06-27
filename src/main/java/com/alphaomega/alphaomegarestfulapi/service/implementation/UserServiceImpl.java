@@ -13,16 +13,13 @@ import com.alphaomega.alphaomegarestfulapi.repository.RoleRepository;
 import com.alphaomega.alphaomegarestfulapi.repository.UserRepository;
 import com.alphaomega.alphaomegarestfulapi.repository.UserSocialMediaRepository;
 import com.alphaomega.alphaomegarestfulapi.security.configuration.PasswordEncoderConfiguration;
-import com.alphaomega.alphaomegarestfulapi.security.service.UserDetailsImpl;
 import com.alphaomega.alphaomegarestfulapi.security.util.JwtUtils;
-import com.alphaomega.alphaomegarestfulapi.security.util.OtpUtils;
+import com.alphaomega.alphaomegarestfulapi.security.util.EmailUtils;
 import com.alphaomega.alphaomegarestfulapi.service.FirebaseCloudStorageService;
 import com.alphaomega.alphaomegarestfulapi.service.UserService;
 import jakarta.mail.MessagingException;
-import jakarta.transaction.TransactionScoped;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -33,12 +30,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -59,11 +54,11 @@ public class UserServiceImpl implements UserService {
 
     private AuthenticationManager authenticationManager;
 
-    private OtpUtils otpUtils;
+    private EmailUtils emailUtils;
 
     private InstructorRepository instructorRepository;
 
-    public UserServiceImpl(UserRepository userRepository, UserSocialMediaRepository userSocialMediaRepository, RoleRepository roleRepository, FirebaseCloudStorageService firebaseCloudStorageService, PasswordEncoderConfiguration passwordEncoderConfiguration, JwtUtils jwtUtils, AuthenticationManager authenticationManager, OtpUtils otpUtils, InstructorRepository instructorRepository) {
+    public UserServiceImpl(UserRepository userRepository, UserSocialMediaRepository userSocialMediaRepository, RoleRepository roleRepository, FirebaseCloudStorageService firebaseCloudStorageService, PasswordEncoderConfiguration passwordEncoderConfiguration, JwtUtils jwtUtils, AuthenticationManager authenticationManager, EmailUtils emailUtils, InstructorRepository instructorRepository) {
         this.userRepository = userRepository;
         this.userSocialMediaRepository = userSocialMediaRepository;
         this.roleRepository = roleRepository;
@@ -71,7 +66,7 @@ public class UserServiceImpl implements UserService {
         this.passwordEncoderConfiguration = passwordEncoderConfiguration;
         this.jwtUtils = jwtUtils;
         this.authenticationManager = authenticationManager;
-        this.otpUtils = otpUtils;
+        this.emailUtils = emailUtils;
         this.instructorRepository = instructorRepository;
     }
 
@@ -96,13 +91,13 @@ public class UserServiceImpl implements UserService {
                 .roles(userRoles)
                 .deleted(false)
                 .isVerify(false)
-                .otp(otpUtils.generateOtp())
+                .otp(emailUtils.generateOtp())
                 .expirationTime(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime().plusMinutes(5))
                 .createdAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime())
                 .build();
 
         userRepository.save(user);
-        otpUtils.sendEmail(user.getEmail(), user.getFullName(), "Code Verification", user.getOtp());
+        emailUtils.sendEmail(user.getEmail(), user.getFullName(), "Code Verification", user.getOtp());
 
         Set<RoleResponse> userRoleResponses = new HashSet<>();
         userRoles.stream().forEach(role -> {
@@ -231,11 +226,11 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(otpRefreshCodeRequest.getEmail())
                 .orElseThrow(() -> new DataNotFoundException(String.format("User with email %s not found", otpRefreshCodeRequest.getEmail())));
 
-        user.setOtp(otpUtils.generateOtp());
+        user.setOtp(emailUtils.generateOtp());
         user.setExpirationTime(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime().plusMinutes(5));
         userRepository.save(user);
 
-        otpUtils.sendEmail(user.getEmail(), user.getFullName(), "AO Verification Code", user.getOtp());
+        emailUtils.sendEmail(user.getEmail(), user.getFullName(), "AO Verification Code", user.getOtp());
 
         Set<RoleResponse> userRoleResponses = new HashSet<>();
         user.getRoles().stream()

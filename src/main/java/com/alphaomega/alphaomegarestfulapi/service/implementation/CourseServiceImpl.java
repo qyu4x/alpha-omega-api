@@ -7,16 +7,18 @@ import com.alphaomega.alphaomegarestfulapi.payload.request.CourseRequest;
 import com.alphaomega.alphaomegarestfulapi.payload.request.UpdateCourseRequest;
 import com.alphaomega.alphaomegarestfulapi.payload.response.*;
 import com.alphaomega.alphaomegarestfulapi.repository.*;
+import com.alphaomega.alphaomegarestfulapi.security.service.UserDetailsImpl;
 import com.alphaomega.alphaomegarestfulapi.service.CourseService;
 import com.alphaomega.alphaomegarestfulapi.service.FirebaseCloudStorageService;
 import com.alphaomega.alphaomegarestfulapi.util.CurrencyUtil;
 import com.alphaomega.alphaomegarestfulapi.util.DurationUtil;
-import io.swagger.v3.oas.annotations.media.Content;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,16 +45,26 @@ public class CourseServiceImpl implements CourseService {
 
     private CourseDetailRepository courseDetailRepository;
 
+
+    private OrderRepository orderRepository;
+
+
     private FirebaseCloudStorageService firebaseCloudStorageService;
 
-    public CourseServiceImpl(CourseRepository courseRepository, InstructorRepository instructorRepository, CourseCategoryRepository courseCategoryRepository, CourseContentRepository courseContentRepository, CourseDetailRepository courseDetailRepository, FirebaseCloudStorageService firebaseCloudStorageService) {
+
+    private UserRepository userRepository;
+
+    public CourseServiceImpl(CourseRepository courseRepository, InstructorRepository instructorRepository, CourseCategoryRepository courseCategoryRepository, CourseContentRepository courseContentRepository, CourseDetailRepository courseDetailRepository, OrderRepository orderRepository, FirebaseCloudStorageService firebaseCloudStorageService, UserRepository userRepository) {
         this.courseRepository = courseRepository;
         this.instructorRepository = instructorRepository;
         this.courseCategoryRepository = courseCategoryRepository;
         this.courseContentRepository = courseContentRepository;
         this.courseDetailRepository = courseDetailRepository;
+        this.orderRepository = orderRepository;
         this.firebaseCloudStorageService = firebaseCloudStorageService;
+        this.userRepository = userRepository;
     }
+
 
     @Value("${course.banner.default}")
     private String defaultBannerUrl;
@@ -308,8 +320,20 @@ public class CourseServiceImpl implements CourseService {
                 .orElseThrow(() -> new DataNotFoundException("Course not found"));
 
         // content locked
-        Boolean videoLocked = true;
+        AtomicReference<Boolean> videoLocked = new AtomicReference<>(true);
         // check from table order detail[ongoing]
+        Optional<User> user = userRepository.findByEmail(getEmailFromToken());
+        if (user.isPresent()) {
+            List<Order> listOrder = orderRepository.findByUserId(user.get().getId());
+            listOrder.stream().forEach(historyOrder -> {
+                historyOrder.getOrderDetailList().stream().forEach(orderDetail -> {
+                    if (orderDetail.getCourse().getId().equals(course.getId()) && historyOrder.getStatus().equals(true)) {
+                        videoLocked.set(false);
+                    }
+                });
+            });
+        }
+
 
         CourseCategoryResponse courseCategoryResponse = new CourseCategoryResponse();
         courseCategoryResponse.setId(course.getCourseCategory().getId());
@@ -373,7 +397,7 @@ public class CourseServiceImpl implements CourseService {
                         courseDetailResponse.setId(courseDetail.getId());
                         courseDetailResponse.setTitle(courseDetail.getTitle());
                         courseDetailResponse.setVideoUrl(courseDetail.getVideoUrl());
-                        courseDetailResponse.setIsLocked(videoLocked);
+                        courseDetailResponse.setIsLocked(videoLocked.get());
                         courseDetailResponse.setDuration(DurationUtil.getVideoDurationDisplayFormat(courseDetail.getDuration()));
                         courseDetailResponse.setCreatedAt(courseDetail.getCreatedAt());
                         courseDetailResponse.setUpdatedAt(courseDetail.getCreatedAt());
@@ -426,8 +450,20 @@ public class CourseServiceImpl implements CourseService {
 
         List<CourseResponse> coursesResponses = new ArrayList<>();
         courses.getContent().stream().forEach(course -> {
-            Boolean videoLocked = true;
+            AtomicReference<Boolean> videoLocked = new AtomicReference<>(true);
+
             // check from table order detail[ongoing]
+            Optional<User> user = userRepository.findByEmail(getEmailFromToken());
+            if (user.isPresent()) {
+                List<Order> listOrder = orderRepository.findByUserId(user.get().getId());
+                listOrder.stream().forEach(historyOrder -> {
+                    historyOrder.getOrderDetailList().stream().forEach(orderDetail -> {
+                        if (orderDetail.getCourse().getId().equals(course.getId()) && historyOrder.getStatus().equals(true)) {
+                            videoLocked.set(false);
+                        }
+                    });
+                });
+            }
 
             CourseCategoryResponse courseCategoryResponse = new CourseCategoryResponse();
             courseCategoryResponse.setId(course.getCourseCategory().getId());
@@ -491,7 +527,7 @@ public class CourseServiceImpl implements CourseService {
                             courseDetailResponse.setId(courseDetail.getId());
                             courseDetailResponse.setTitle(courseDetail.getTitle());
                             courseDetailResponse.setVideoUrl(courseDetail.getVideoUrl());
-                            courseDetailResponse.setIsLocked(videoLocked);
+                            courseDetailResponse.setIsLocked(videoLocked.get());
                             courseDetailResponse.setDuration(DurationUtil.getVideoDurationDisplayFormat(courseDetail.getDuration()));
                             courseDetailResponse.setCreatedAt(courseDetail.getCreatedAt());
                             courseDetailResponse.setUpdatedAt(courseDetail.getCreatedAt());
@@ -544,5 +580,15 @@ public class CourseServiceImpl implements CourseService {
         courseRepository.delete(course);
         log.info("Successfully delete course with id {}", courseId);
         return true;
+    }
+
+    public String getEmailFromToken() {
+        log.info("Check current user");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            return userDetails.getEmail();
+        }
+        return "NA"; // or throw an exception if no authenticated user is found
     }
 }
