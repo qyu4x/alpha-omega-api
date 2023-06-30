@@ -1,10 +1,7 @@
 package com.alphaomega.alphaomegarestfulapi.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,6 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Builder
 @Table(name = "instructor")
 public class Instructor {
 
@@ -27,7 +25,7 @@ public class Instructor {
     @OneToMany(mappedBy = "instructor", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Course> courses;
 
-    @OneToMany(mappedBy = "instructor", fetch = FetchType.LAZY, orphanRemoval = false)
+    @OneToMany(mappedBy = "instructor", fetch = FetchType.LAZY, orphanRemoval = true)
     private List<InstructorArticle> instructorArticles;
 
     private Long totalParticipants;

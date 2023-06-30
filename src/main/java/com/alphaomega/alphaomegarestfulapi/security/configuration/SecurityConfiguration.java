@@ -59,12 +59,17 @@ public class SecurityConfiguration {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers("/api/alpha/v1/auth/**");
+        return (web) -> web.ignoring().requestMatchers(
+                "/api/alpha/v1/auth/**", "/api/alpha/v1/course-categories", "/api/alpha/v1/banner/list", "/api/alpha/v1/instructors",
+                "/swagger-ui/**", "/v3/api-docs/**",
+                "/api/alpha/v1/course/**", "/api/alpha/v1/courses/**", "/api/alpha/v1/content/*",  "/api/alpha/v1/contents/*",
+                "/api/alpha/v1/comments/**", "/api/alpha/v1/payments", "/api/alpha/v1/payment/**"
+        );
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.csrf().and().cors().disable()
+        httpSecurity.csrf().disable().cors().disable()
                 .exceptionHandling().authenticationEntryPoint(authEntryPoint).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeHttpRequests()

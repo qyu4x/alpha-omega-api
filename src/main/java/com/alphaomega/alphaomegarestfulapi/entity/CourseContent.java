@@ -27,8 +27,8 @@ public class CourseContent {
 
     private String titleSubCourse;
 
-    @Column(name = "duration_in_minutes")
-    private Duration duration;
+    @Column(name = "duration_in_second")
+    private Integer duration;
 
     @OneToMany(mappedBy = "courseContent", fetch = FetchType.LAZY, cascade = CascadeType.ALL,orphanRemoval = true)
     private List<CourseDetail> courseDetails;

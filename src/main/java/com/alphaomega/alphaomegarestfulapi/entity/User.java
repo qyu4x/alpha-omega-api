@@ -45,9 +45,19 @@ public class User {
     private String instructorName;
 
     @Column(columnDefinition = "TEXT")
+    private String caption;
+
+    @Column(columnDefinition = "TEXT")
     private String biography;
 
     private Boolean deleted = false;
+
+    private Integer otp;
+
+    @Column(nullable = false)
+    private Boolean isVerify;
+
+    private LocalDateTime expirationTime;
 
     private LocalDateTime createdAt;
 
@@ -80,6 +90,9 @@ public class User {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = false)
     private List<Order> orders;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = false)
+    private List<OrderHistory> orderHistories;
 
 
 }

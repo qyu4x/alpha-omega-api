@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### cloud config
+/src/main/resources/upload-file-16cbc-firebase-adminsdk-2vuhs-07a596551b.json
