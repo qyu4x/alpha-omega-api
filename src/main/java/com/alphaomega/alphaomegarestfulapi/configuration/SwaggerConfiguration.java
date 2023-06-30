@@ -44,6 +44,10 @@ public class SwaggerConfiguration {
         serverDevelopment.setUrl("http://localhost:8080/");
         serverDevelopment.setDescription("Main server for Development");
 
+        Server serverProduction = new Server();
+        serverProduction.setUrl("https://alpha-omega-api-production.up.railway.app");
+        serverProduction.setDescription("Main server for Production");
+
         servers.add(serverDevelopment);
         return servers;
     }
