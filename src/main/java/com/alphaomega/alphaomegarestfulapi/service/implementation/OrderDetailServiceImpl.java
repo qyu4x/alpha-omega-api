@@ -76,6 +76,7 @@ public class OrderDetailServiceImpl implements OrderDetailService {
             orderDetails.add(orderDetail);
 
             OrderDetailResponse orderDetailResponse = new OrderDetailResponse();
+            orderDetailResponse.setCourseId(course.getId());
             orderDetailResponse.setCourseName(course.getTitle());
             orderDetailResponse.setPrice(course.getPrice());
             orderDetailResponses.add(orderDetailResponse);

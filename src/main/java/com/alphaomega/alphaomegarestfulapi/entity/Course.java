@@ -53,6 +53,9 @@ public class Course {
     @OneToMany(mappedBy = "course", fetch = FetchType.LAZY, orphanRemoval = true)
     private List<OrderDetail> orderDetails;
 
+    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderHistory> orderHistories;
+
     @Column(columnDefinition = "TEXT")
     private String description;
 

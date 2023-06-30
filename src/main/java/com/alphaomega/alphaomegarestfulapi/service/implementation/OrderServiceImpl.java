@@ -1,15 +1,15 @@
 package com.alphaomega.alphaomegarestfulapi.service.implementation;
 
-import com.alphaomega.alphaomegarestfulapi.entity.Notification;
-import com.alphaomega.alphaomegarestfulapi.entity.Order;
-import com.alphaomega.alphaomegarestfulapi.entity.Promo;
-import com.alphaomega.alphaomegarestfulapi.entity.User;
+import com.alphaomega.alphaomegarestfulapi.entity.*;
+import com.alphaomega.alphaomegarestfulapi.exception.DataAlreadyExistsException;
 import com.alphaomega.alphaomegarestfulapi.exception.DataNotFoundException;
 import com.alphaomega.alphaomegarestfulapi.exception.DataNotValidException;
 import com.alphaomega.alphaomegarestfulapi.exception.InvalidOtpException;
 import com.alphaomega.alphaomegarestfulapi.payload.request.NotificationRequest;
+import com.alphaomega.alphaomegarestfulapi.payload.request.OrderDetailRequest;
 import com.alphaomega.alphaomegarestfulapi.payload.request.OrderRequest;
 import com.alphaomega.alphaomegarestfulapi.payload.response.CreateOrderDetailResponse;
+import com.alphaomega.alphaomegarestfulapi.payload.response.OrderDetailResponse;
 import com.alphaomega.alphaomegarestfulapi.payload.response.OrderResponse;
 import com.alphaomega.alphaomegarestfulapi.repository.*;
 import com.alphaomega.alphaomegarestfulapi.security.util.EmailUtils;
@@ -25,6 +25,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -56,7 +58,12 @@ public class OrderServiceImpl implements OrderService {
 
     private EmailUtils emailUtils;
 
-    public OrderServiceImpl(OrderRepository orderRepository, OrderDetailRepository orderDetailRepository, UserRepository userRepository, OrderDetailService orderDetailService, PromoRepository promoRepository, ShoppingCartRepository shoppingCartRepository, WishListRepository wishListRepository, NotificationService notificationService, EmailUtils emailUtils) {
+    private OrderHistoryRepository orderHistoryRepository;
+    private final CourseRepository courseRepository;
+
+
+    public OrderServiceImpl(OrderRepository orderRepository, OrderDetailRepository orderDetailRepository, UserRepository userRepository, OrderDetailService orderDetailService, PromoRepository promoRepository, ShoppingCartRepository shoppingCartRepository, WishListRepository wishListRepository, NotificationService notificationService, EmailUtils emailUtils, OrderHistoryRepository orderHistoryRepository,
+                            CourseRepository courseRepository) {
         this.orderRepository = orderRepository;
         this.orderDetailRepository = orderDetailRepository;
         this.userRepository = userRepository;
@@ -66,6 +73,8 @@ public class OrderServiceImpl implements OrderService {
         this.wishListRepository = wishListRepository;
         this.notificationService = notificationService;
         this.emailUtils = emailUtils;
+        this.orderHistoryRepository = orderHistoryRepository;
+        this.courseRepository = courseRepository;
     }
 
     @Transactional
@@ -81,6 +90,9 @@ public class OrderServiceImpl implements OrderService {
             throw new InvalidOtpException("Promo is expired");
         }
 
+        // check order history
+        checkOrderAvailable(orderRequest.getCourses(), userId);
+
         Order order = createOrder(userId);
         CreateOrderDetailResponse orderDetail = orderDetailService
                 .createOrderDetail(orderRequest.getCourses(), order, orderRequest.getPromoId());
@@ -93,13 +105,15 @@ public class OrderServiceImpl implements OrderService {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new DataNotFoundException("User not found"));
-
         NotificationRequest notificationRequest = new NotificationRequest();
         notificationRequest.setTitle("Payment Successful");
         notificationRequest.setMessage(String.format("Congratulations! You are now a member of Alpha & Omega. Enjoy exploring our app and discovering new knowledge and skills!"));
 
         emailUtils.sendEmailOrderSuccess(user.getEmail());
         notificationService.pushOrder(notificationRequest, user.getId());
+
+        // insert into order history
+        insertIntoOrderHistory(orderDetail.getCourse(), user);
 
         OrderResponse orderResponse = new OrderResponse();
         orderResponse.setOrderId(order.getId());
@@ -111,7 +125,6 @@ public class OrderServiceImpl implements OrderService {
         orderResponse.setCreatedAt(order.getCreatedAt());
         orderResponse.setUpdatedAt(order.getUpdatedAt());
         log.info("Successfully create order");
-
 
         return orderResponse;
     }
@@ -147,5 +160,33 @@ public class OrderServiceImpl implements OrderService {
         return true;
     }
 
+    public void checkOrderAvailable(List<OrderDetailRequest> orderDetailRequests, String userId) {
+        log.info("Check available course in course history");
+        orderDetailRequests.stream().forEach(orderDetailRequest -> {
+           if (!orderHistoryRepository.findOrderHistoryByUserIdAndCourseId(userId, orderDetailRequest.getCourseId()).isEmpty()) {
+               throw new DataAlreadyExistsException("You have already purchased this course");
+           }
+        });
+    }
 
+    public void insertIntoOrderHistory(List<OrderDetailResponse> orderDetailResponses, User user) {
+        log.info("Create order histories for user id {}", user.getId());
+        List<OrderHistory> orderHistories = new ArrayList<>();
+        orderDetailResponses.stream().forEach(orderDetailResponse -> {
+            Course course = courseRepository.findById(orderDetailResponse.getCourseId())
+                    .orElseThrow(() -> new DataNotFoundException("Oops, course not found"));
+
+            OrderHistory orderHistory = new OrderHistory();
+            orderHistory.setId("ods".concat(UUID.randomUUID().toString()));
+            orderHistory.setUser(user);
+            orderHistory.setCourse(course);
+            orderHistory.setCreatedAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime());
+            orderHistory.setUpdatedAt(OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.ofHours(7)).toLocalDateTime());
+
+            orderHistories.add(orderHistory);
+        });
+
+        orderHistoryRepository.saveAll(orderHistories);
+        log.info("Successfully insert order history");
+    }
 }

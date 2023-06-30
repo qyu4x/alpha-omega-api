@@ -13,6 +13,8 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class OrderDetailResponse {
 
+    private String courseId;
+
     private String courseName;
 
     private BigDecimal price;
