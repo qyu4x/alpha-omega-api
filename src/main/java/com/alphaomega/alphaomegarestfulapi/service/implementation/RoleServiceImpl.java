@@ -5,6 +5,7 @@ import com.alphaomega.alphaomegarestfulapi.entity.Role;
 import com.alphaomega.alphaomegarestfulapi.repository.RoleRepository;
 import com.alphaomega.alphaomegarestfulapi.service.RoleService;
 import jakarta.annotation.PostConstruct;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     @PostConstruct
+    @Order(1)
     public void create() {
         if (roleRepository.findAll().size() != 3) {
             List<Role> roles = new ArrayList<>();
