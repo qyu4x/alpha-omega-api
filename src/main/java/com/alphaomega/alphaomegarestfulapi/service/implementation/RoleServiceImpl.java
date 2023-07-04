@@ -32,6 +32,7 @@ public class RoleServiceImpl implements RoleService {
             roles.add(new Role(UUID.randomUUID().toString().replace("-", ""), ERole.ROLE_INSTRUCTOR));
 
             roleRepository.saveAll(roles);
+
         }
     }
 }
