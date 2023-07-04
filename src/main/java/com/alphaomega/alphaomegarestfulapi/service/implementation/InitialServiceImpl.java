@@ -12,6 +12,7 @@ import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -59,6 +60,7 @@ public class InitialServiceImpl implements InitialService {
 
     @PostConstruct
     @Override
+    @Order(2)
     public void initAdmin() {
         SignupRequest signupRequest = new SignupRequest();
         signupRequest.setFullName(this.fullName);
