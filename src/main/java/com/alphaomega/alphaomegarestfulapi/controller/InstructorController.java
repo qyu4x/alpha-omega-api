@@ -27,7 +27,6 @@ public class InstructorController {
         this.instructorService = instructorService;
     }
 
-    @PreAuthorize("hasRole('USER') or hasRole('INSTRUCTOR') or hasRole('ADMIN')")
     @GetMapping("/instructor/{id}")
     public ResponseEntity<WebResponse<InstructorDetailResponse>> findById(@PathVariable("id") String id) {
         log.info("Request get instructor data");
