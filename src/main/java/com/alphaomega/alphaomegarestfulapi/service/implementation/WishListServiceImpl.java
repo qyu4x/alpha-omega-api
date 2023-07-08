@@ -136,6 +136,7 @@ public class WishListServiceImpl implements WishListService {
 
             wishListResponses.add(wishListResponse);
         });
+
         log.info("Successfully get all wishlists");
         return wishListResponses;
     }
