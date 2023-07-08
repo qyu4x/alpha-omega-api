@@ -54,7 +54,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new DataNotFoundException("Course not found"));
 
-        if (!shoppingCartRepository.findByCourseIdAAndUserId(courseId, userId).isEmpty()) {
+        if (!shoppingCartRepository.findByCourseIdAndUserId(courseId, userId).isEmpty()) {
             throw new DataAlreadyExistsException("Oops, this course is already on your shooping cart");
         }
 
