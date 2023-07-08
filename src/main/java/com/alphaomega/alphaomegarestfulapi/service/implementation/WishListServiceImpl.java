@@ -56,7 +56,7 @@ public class WishListServiceImpl implements WishListService {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new DataNotFoundException("Course not found"));
 
-        if (!wishListRepository.findByCourseId(courseId).isEmpty()) {
+        if (!wishListRepository.findByCourseIdAndUserId(courseId, userId).isEmpty()) {
             throw new DataAlreadyExistsException("Oops, this course is already on your wish list");
         }
 

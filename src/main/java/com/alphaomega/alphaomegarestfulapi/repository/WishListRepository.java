@@ -11,6 +11,6 @@ public interface WishListRepository extends JpaRepository<WishList, String> {
 
     List<WishList> findAllByUserId(String userId);
 
-    List<WishList> findByCourseId(String courseId);
+    List<WishList> findByCourseIdAndUserId(String courseId, String userId);
 
 }

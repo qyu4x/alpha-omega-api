@@ -9,7 +9,7 @@ import java.util.List;
 @Repository
 public interface ShoppingCartRepository extends JpaRepository<ShoppingCart, String> {
 
-    List<ShoppingCart> findByCourseId(String courseId);
+    List<ShoppingCart> findByCourseIdAAndUserId(String courseId, String userId);
 
     List<ShoppingCart> findAllByUserId(String userId);
 }
